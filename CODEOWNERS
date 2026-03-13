@@ -1,0 +1,25 @@
+# These owners are the default owners for everything in the repository.
+# Unless a later match takes precedence, they will be requested for review.
+* @InfinityXOneSystems/platform-team
+
+# Governance and policy files require platform team review.
+_OPS/ @InfinityXOneSystems/platform-team
+.github/ @InfinityXOneSystems/platform-team
+CODEOWNERS @InfinityXOneSystems/platform-team
+SECURITY.md @InfinityXOneSystems/platform-team
+
+# Backend application code.
+apps/backend/ @InfinityXOneSystems/platform-team
+
+# Frontend application code.
+apps/frontend/ @InfinityXOneSystems/platform-team
+
+# Shared packages.
+packages/ @InfinityXOneSystems/platform-team
+
+# CI/CD workflows require platform team review.
+.github/workflows/ @InfinityXOneSystems/platform-team
+
+# Operator runbook and architecture changes require platform team review.
+_OPS/RUNBOOK/ @InfinityXOneSystems/platform-team
+_OPS/ARCHITECTURE/ @InfinityXOneSystems/platform-team

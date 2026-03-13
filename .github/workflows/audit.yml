@@ -1,0 +1,148 @@
+name: Audit
+
+on:
+  push:
+    branches:
+      - main
+  schedule:
+    # Runs nightly at 02:00 UTC
+    - cron: "0 2 * * *"
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "Branch to audit (defaults to current branch)"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    name: Repository Audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate toolchain versions
+        run: |
+          REPORT_DIR="FORENSIC_AUDIT"
+          mkdir -p "${REPORT_DIR}"
+
+          python3 - "${REPORT_DIR}/toolchain_versions.json" <<'PYEOF'
+          import json
+          import subprocess
+          import sys
+          import os
+          from datetime import datetime, timezone
+
+          report_file = sys.argv[1]
+
+          def run(cmd):
+              try:
+                  result = subprocess.run(
+                      cmd,
+                      capture_output=True,
+                      text=True,
+                      timeout=10,
+                  )
+                  return result.stdout.strip() if result.returncode == 0 else f"error: {result.stderr.strip()}"
+              except FileNotFoundError:
+                  return "not_found"
+              except Exception as exc:
+                  return f"error: {exc}"
+
+          tools = {
+              "bash": run(["bash", "--version"]).splitlines()[0] if run(["bash", "--version"]) != "not_found" else "not_found",
+              "python3": run(["python3", "--version"]),
+              "pip3": run(["pip3", "--version"]).split()[1] if run(["pip3", "--version"]) not in ("not_found",) else "not_found",
+              "node": run(["node", "--version"]),
+              "npm": run(["npm", "--version"]),
+              "curl": run(["curl", "--version"]).splitlines()[0],
+              "git": run(["git", "--version"]),
+              "docker": run(["docker", "--version"]),
+              "jq": run(["jq", "--version"]),
+          }
+
+          report = {
+              "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+              "runner_os": os.environ.get("RUNNER_OS", "unknown"),
+              "tools": tools,
+          }
+
+          os.makedirs(os.path.dirname(report_file), exist_ok=True)
+          with open(report_file, "w") as fh:
+              json.dump(report, fh, indent=2)
+
+          print("Toolchain versions:")
+          for tool, version in tools.items():
+              print(f"  {tool}: {version}")
+          PYEOF
+
+      - name: Validate repository settings
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_DEFAULT_BRANCH: main
+          FORENSIC_AUDIT_DIR: FORENSIC_AUDIT
+        run: |
+          bash _OPS/scripts/validate_repo_settings.sh
+
+      - name: Summarize audit results
+        run: |
+          echo "## Audit Summary" >> "${GITHUB_STEP_SUMMARY}"
+          echo "" >> "${GITHUB_STEP_SUMMARY}"
+
+          if [[ -f "FORENSIC_AUDIT/repo_settings_report.json" ]]; then
+            STATUS=$(python3 -c "
+          import json
+          with open('FORENSIC_AUDIT/repo_settings_report.json') as f:
+              r = json.load(f)
+          s = r.get('compliance_summary', {})
+          print(s.get('status', 'UNKNOWN'))
+          ")
+            ISSUES=$(python3 -c "
+          import json
+          with open('FORENSIC_AUDIT/repo_settings_report.json') as f:
+              r = json.load(f)
+          s = r.get('compliance_summary', {})
+          issues = s.get('issues', [])
+          for i in issues:
+              print(f'- {i}')
+          ")
+
+            echo "### Repository Settings Compliance: ${STATUS}" >> "${GITHUB_STEP_SUMMARY}"
+            if [[ -n "$ISSUES" ]]; then
+              echo "" >> "${GITHUB_STEP_SUMMARY}"
+              echo "**Issues found:**" >> "${GITHUB_STEP_SUMMARY}"
+              echo "$ISSUES" >> "${GITHUB_STEP_SUMMARY}"
+            else
+              echo "" >> "${GITHUB_STEP_SUMMARY}"
+              echo "No compliance issues found." >> "${GITHUB_STEP_SUMMARY}"
+            fi
+          else
+            echo "### Repository Settings: Report not generated" >> "${GITHUB_STEP_SUMMARY}"
+          fi
+
+          if [[ -f "FORENSIC_AUDIT/toolchain_versions.json" ]]; then
+            echo "" >> "${GITHUB_STEP_SUMMARY}"
+            echo "### Toolchain Versions" >> "${GITHUB_STEP_SUMMARY}"
+            echo "" >> "${GITHUB_STEP_SUMMARY}"
+            python3 -c "
+          import json
+          with open('FORENSIC_AUDIT/toolchain_versions.json') as f:
+              r = json.load(f)
+          print('| Tool | Version |')
+          print('|---|---|')
+          for tool, version in r.get('tools', {}).items():
+              print(f'| {tool} | {version} |')
+          " >> "${GITHUB_STEP_SUMMARY}"
+          fi
+
+      - name: Upload audit artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: forensic-audit-report
+          path: FORENSIC_AUDIT/
+          retention-days: 30

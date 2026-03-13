@@ -1,226 +1,139 @@
 # System Topology — XPS Intelligence Platform
 
-> **Status:** Active  
-> **Last Updated:** 2026-03-13  
-> **Owner:** `@InfinityXOneSystems`
+This document is the **single source of truth** for the runtime architecture
+of the XPS Intelligence Platform mono-repo. All agents, workflows, and
+contributors must conform to this topology.
 
----
+## Repository Layout
 
-## 1. High-Level Topology
-
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│                      CONTROL PLANE (GitHub)                         │
-│  Workflows · Branch Protection · Environments · Secrets · Labels   │
-└───────────────────────────────┬─────────────────────────────────────┘
-                                │ CI/CD triggers
-                                ▼
-┌───────────────────────────────────────────────────────────────────┐
-│                     EXECUTION PLANE (Railway)                     │
-│                                                                   │
-│  ┌─────────────┐  ┌──────────────┐  ┌────────────────────────┐  │
-│  │  api service │  │ worker-default│  │ worker-playwright      │  │
-│  │  (FastAPI)   │  │ (queue tasks) │  │ (browser automation)   │  │
-│  └──────┬───────┘  └──────┬───────┘  └────────────────────────┘  │
-│         │                 │                                        │
-│  ┌──────▼─────────────────▼──────────────────────────────────┐   │
-│  │                  Infrastructure Layer                      │   │
-│  │  PostgreSQL (Railway) · Redis (Railway) · Supabase (opt.) │   │
-│  └────────────────────────────────────────────────────────────┘   │
-└───────────────────────────────────────────────────────────────────┘
-                                │
-                                ▼
-┌───────────────────────────────────────────────────────────────────┐
-│                  PRESENTATION PLANE (Frontend)                    │
-│                                                                   │
-│  apps/frontend/  (Next.js 15.5.x — Railway or Vercel)            │
-│  ├── / (root → redirects to /legacy-dashboard)                   │
-│  ├── /legacy-dashboard  ◄── LEGACY BRIDGE (see §4)               │
-│  └── [future native routes]                                       │
-│                                                                   │
-│  ┌──────────────────────────────────────────────────────────┐    │
-│  │  LEGACY BRIDGE (iframe, default)                         │    │
-│  │  GitHub Pages: infinityxonesystems.github.io/            │    │
-│  │               XPS_INTELLIGENCE_SYSTEM/                   │    │
-│  │  Source: XPS_INTELLIGENCE_SYSTEM/dashboard/ (Next.js)   │    │
-│  └──────────────────────────────────────────────────────────┘    │
-└───────────────────────────────────────────────────────────────────┘
-```
-
----
-
-## 2. Service Inventory
-
-| Service | Type | Repository | Deployment | Status |
-|---------|------|------------|------------|--------|
-| `api` | FastAPI (Python) | `apps/backend/` | Railway | Planned |
-| `worker-default` | Node.js queue consumer | `apps/workers/` | Railway | Planned |
-| `worker-playwright` | Playwright automation | `apps/workers/playwright` | Railway | Planned |
-| `sandbox-runner` | Isolated execution sandbox | `apps/workers/sandbox` | Railway | Planned |
-| `frontend` | Next.js 15.5.x | `apps/frontend/` | Railway | Active (bridge) |
-| `legacy-pages` | Static GitHub Pages | `XPS_INTELLIGENCE_SYSTEM/dashboard/` | GitHub Pages | Active (source) |
-| `postgres` | PostgreSQL 16 | Railway managed | Railway | Planned |
-| `redis` | Redis 7 | Railway managed | Railway | Planned |
-
----
-
-## 3. Monorepo Module Map
-
-```
+```text
 XPS_INTELLIGENCE_PLATFORM/
 ├── apps/
-│   ├── backend/              FastAPI backend + runtime controller
-│   └── frontend/             Next.js frontend (additive-only UI)
-│       └── src/app/
-│           ├── layout.tsx    Root layout
-│           ├── page.tsx      Root → redirects to /legacy-dashboard
-│           └── legacy-dashboard/
-│               └── page.tsx  Legacy dashboard bridge (iframe/native)
+│   ├── backend/          # FastAPI runtime controller + REST + WebSocket API
+│   └── frontend/         # Vite + React + TypeScript
 ├── packages/
-│   ├── agents/               Autonomous AI agents (BaseAgent interface)
-│   └── shared/               Shared utilities, types, constants
-├── scripts/                  Automation scripts (bash/python)
-├── docs/                     Architecture, API, deployment docs
-├── tests/
-│   └── e2e/                  Playwright E2E tests
-│       ├── foundation.spec.ts
-│       └── legacy-dashboard.spec.ts  ◄── ADDED: bridge proof tests
-├── FORENSIC_AUDIT/           Auto-generated evidence + audit reports
-│   ├── legacy_dashboard_discovery.md
-│   └── legacy_dashboard_feature_matrix.json
-├── LEGACY_DASHBOARD_MIGRATION.md   ◄── ADDED: migration ledger
-└── _OPS/
-    ├── ARCHITECTURE/
-    │   └── SYSTEM_TOPOLOGY.md   (this file)
-    └── RUNBOOK/
-        └── REPO_SETTINGS_BASELINE.md
+│   ├── agents/           # Agent implementations (scraper, SEO, social, etc.)
+│   └── shared/           # Shared types, schemas, and utilities
+├── _OPS/
+│   ├── POLICY/           # TAP governance policy
+│   ├── ARCHITECTURE/     # System topology (this file)
+│   ├── RUNBOOK/          # Operator runbook
+│   └── scripts/          # Read-only validation scripts
+├── prompts/              # Copilot operator prompts
+├── FORENSIC_AUDIT/       # Auto-generated audit reports (CI artifacts)
+├── TEST_EVIDENCE/        # Test result artifacts (CI artifacts)
+└── .github/
+    ├── workflows/        # GitHub Actions CI/CD pipelines
+    └── copilot-instructions.md
 ```
 
----
+## Services (Railway Deployment)
 
-## 4. Legacy Dashboard Integration
+| Service | Type | Description |
+|---|---|---|
+| `api` | Web | FastAPI runtime controller — REST + WebSocket |
+| `worker-default` | Worker | Async task queue consumer (general workloads) |
+| `worker-playwright` | Worker | Playwright-sandboxed scraper worker |
+| `sandbox-runner` | Worker | Isolated execution environment for code tasks |
+| `redis` | Database | Task queue + state store |
+| `postgres` | Database | Leads, artifacts, audit logs |
 
-### Overview
-The XPS Intelligence System (`InfinityXOneSystems/XPS_INTELLIGENCE_SYSTEM`) has a fully operational dashboard published to GitHub Pages at:
+## Frontend Architecture
 
-```
-https://infinityxonesystems.github.io/XPS_INTELLIGENCE_SYSTEM/
-```
+- **Stack:** Vite + React + TypeScript
+- **LLM Layer:** `src/lib/llm.ts` — provider-routed (Groq secondary fallback)
+- **Orchestrator:** `src/lib/orchestrator.ts` — UI-side planner/command client
+- **API Client:** `src/lib/api.ts` — communicates with backend via
+  `VITE_API_URL`
+- **Center Editing Screen:** Monaco editor + unified artifact results panel
+- **Agent Roster:** 13+ agents surfaced through the runtime command interface
 
-This dashboard is built from `XPS_INTELLIGENCE_SYSTEM/dashboard/` (a Next.js 15 application) via the `.github/workflows/nextjs.yml` workflow.
+### Frontend Invariants
 
-### Integration Architecture
+- The center editing screen renders natural language and typed artifacts:
+  images, video, music, business templates, charts, normalized leads, and
+  system creation outputs.
+- The visual identity (colors, typography, component library, layout) is
+  **locked**. No changes without a design-approved PR.
+- All environment variables are non-secret. Secrets are backend-only.
 
-```
-User → apps/frontend/legacy-dashboard → <iframe>
-                                           └→ GitHub Pages
-                                                └→ Railway API
-                                                     └→ PostgreSQL
-```
+## Runtime Authority
 
-### Feature Flag
+All execution flows through exactly one path:
 
-| Variable | Default | Values | Effect |
-|----------|---------|--------|--------|
-| `NEXT_PUBLIC_LEGACY_DASHBOARD_MODE` | `iframe` | `iframe`, `native` | Controls render strategy |
-| `NEXT_PUBLIC_LEGACY_DASHBOARD_URL` | See below | URL string | Override iframe src |
-
-Default iframe URL: `https://infinityxonesystems.github.io/XPS_INTELLIGENCE_SYSTEM/`
-
-### Migration Status
-See `LEGACY_DASHBOARD_MIGRATION.md` for the full per-feature migration ledger.
-
-**Current phase:** Bridge (iframe)  
-**Gate to native:** All 34 features must be marked `ported` with test coverage.
-
----
-
-## 5. Data Flow
-
-### Lead Intelligence Pipeline
-```
-Shadow Scraper (Railway worker-playwright)
-  └─► Redis/BullMQ queue
-        └─► worker-default
-              ├─► Validation agent
-              ├─► Enrichment agent
-              ├─► Scoring agent
-              └─► PostgreSQL (leads table)
-                    └─► Railway REST API (/api/leads)
-                          └─► frontend (/legacy-dashboard iframe)
-                                └─► User browser
+```text
+User Command (UI)
+  → Frontend Orchestrator (planner only)
+    → POST /api/v1/runtime/command
+      → RuntimeController
+        → CommandValidator
+          → CommandRouter
+            → TaskDispatcher
+              → Redis Queue
+                → Worker (default | playwright | sandbox)
+                  → Artifact Storage
+                    → WebSocket push to UI
 ```
 
-### Agent Dispatch Pattern
-```
-Frontend (trigger) → POST /api/v1/runtime/command
-  └─► Backend runtime controller
-        └─► BullMQ queue (Redis)
-              └─► Worker consumer
-                    └─► Agent execution (sandboxed)
-                          └─► Artifact stored (PostgreSQL)
-                                └─► GET /api/v1/artifacts (frontend poll)
+**No alternate execution paths are allowed.** The frontend orchestrator is a
+client, not an execution authority.
+
+## Scraper System
+
+- **Universal Scraper:** supports both manual trigger and scheduled 2-hour cycle
+- **Compliance:** allowlist-based domain targeting; rate limiting enforced
+- **Pipeline:** scrape → ingest → normalize → score → store
+- **Toggle:** `SCRAPER_ENABLED` environment variable (Railway + GitHub Actions)
+- **Settings UI:** concurrency, rate limits, source selection, compliance flags
+
+## Lead Pipeline
+
+```text
+Raw Scrape Output
+  → Ingest Worker (dedup + validate)
+    → Normalize Worker (standardize schema)
+      → Score Worker (ML scoring model)
+        → PostgreSQL (leads table)
+          → Frontend Results Panel
 ```
 
----
+## Security Boundary
 
-## 6. CI/CD Pipeline
+| Layer | Constraint |
+|---|---|
+| Frontend bundle | No secrets; no server-side logic |
+| API surface | CORS allowlist; JWT/token auth |
+| Worker execution | Container-isolated; read-only mounts where possible |
+| Sandbox runner | Constrained network (allowlist); per-task workspace |
+| Database | Private Railway network; no public exposure |
 
-```
+## CI/CD Pipeline
+
+```text
 Push / PR
-  ├─► CI workflow (ci.yml)
-  │     ├─► backend: ruff · mypy · pytest
-  │     ├─► frontend: eslint · tsc · next build
-  │     └─► agents: py_compile
-  ├─► Playwright E2E (playwright-tests.yml)
-  │     ├─► foundation.spec.ts
-  │     └─► legacy-dashboard.spec.ts
-  ├─► Security scan (security-scan.yml)
-  ├─► Self-audit (repo-self-audit.yml)
-  └─► Deploy (deploy-railway.yml)
-        ├─► staging (push to main, auto)
-        └─► production (tagged release, manual approval)
+  → ci.yml (lint + structure + secrets scan)
+    → backend tests (unit + integration)
+      → frontend build (typecheck + lint + build)
+        → e2e tests (Playwright)
+          → audit.yml (repo settings + toolchain validation)
+            → Deploy to Railway (main branch only, after all gates)
 ```
 
----
+## Scheduled Automation (Every 2 Hours)
 
-## 7. Environment Variables Schema
+- Scraper cycle: fetch → ingest → normalize → score
+- Audit report: regenerate `FORENSIC_AUDIT/` snapshot
+- Dependency check: flag new CVEs in issues
 
-### Frontend (`apps/frontend/`)
+## Environment Variables
 
-| Variable | Type | Default | Description |
-|----------|------|---------|-------------|
-| `NEXT_PUBLIC_LEGACY_DASHBOARD_MODE` | `iframe\|native` | `iframe` | Legacy dashboard render mode |
-| `NEXT_PUBLIC_LEGACY_DASHBOARD_URL` | URL | `https://infinityxonesystems.github.io/XPS_INTELLIGENCE_SYSTEM/` | Legacy iframe src |
-
-### Backend (`apps/backend/`)
-
-| Variable | Type | Required | Description |
-|----------|------|----------|-------------|
-| `DATABASE_URL` | `postgresql://...` | ✅ | Primary database |
-| `REDIS_URL` | `redis://...` | ✅ | Queue + cache |
-| `GROQ_API_KEY` | string | ✅ | Groq LLM provider |
-| `ENVIRONMENT` | `development\|staging\|production` | ✅ | Runtime environment |
-| `AUTONOMY_ENABLED` | `true\|false` | — | Enable autonomous operations |
-| `SCRAPER_AUTORUN_ENABLED` | `true\|false` | — | Enable scheduled scraping |
-
----
-
-## 8. Legacy System Inventory (XPS_INTELLIGENCE_SYSTEM)
-
-The following components from `InfinityXOneSystems/XPS_INTELLIGENCE_SYSTEM` are being migrated into this monorepo. See `FORENSIC_AUDIT/legacy_dashboard_discovery.md` for the detailed inventory.
-
-| Component | Source Path | Target Path | Status |
-|-----------|-------------|-------------|--------|
-| Dashboard (Next.js) | `dashboard/` | `apps/frontend/` (native, TBD) | bridged via iframe |
-| Backend API | `api/`, `backend/` | `apps/backend/` | Planned |
-| Agents | `agents/` | `packages/agents/` | Planned |
-| Scrapers | `scrapers/` | `apps/workers/playwright` | Planned |
-| Queue system | `queue/`, `task_queue/` | `apps/workers/default` | Planned |
-| Runtime controller | `runtime_controller/` | `apps/backend/` | Planned |
-| Contracts | `contracts/` | `packages/contracts/` | Planned |
-| Shared library | `infinity_library/` | `packages/shared/` | Planned |
-
----
-
-*This document is the authoritative system topology. All architectural changes must update this file via PR.*
+| Variable | Location | Purpose |
+|---|---|---|
+| `DATABASE_URL` | Railway (backend) | PostgreSQL connection |
+| `REDIS_URL` | Railway (backend) | Redis connection |
+| `GROQ_API_KEY` | Railway (backend) | Groq LLM provider |
+| `LLM_PROVIDER` | Railway (backend) | Primary LLM provider name |
+| `SCRAPER_ENABLED` | Railway (backend) | Enable/disable scraper schedule |
+| `AUTONOMY_ENABLED` | Railway + Actions | Master autonomy toggle |
+| `VITE_API_URL` | Railway (frontend) | Backend API base URL |
+| `GITHUB_TOKEN` | Actions (auto) | GitHub API access (read-only in audit) |

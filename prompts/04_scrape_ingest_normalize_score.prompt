@@ -1,0 +1,61 @@
+You are to create a PR that implements the universal scraper, lead ingestion
+pipeline, normalization, scoring, and the corresponding frontend settings UI.
+
+Pre-requisite: Phase 3 runtime unification must be in place.
+
+Requirements:
+
+1. Implement the Universal Scraper (apps/backend/app/workers/scraper/):
+   - Playwright-based headless browser agent
+   - Supports manual trigger (API command) and scheduled 2-hour cycle
+   - Controlled by SCRAPER_ENABLED environment variable
+   - Manual/automated toggle exposed in frontend Settings UI
+   - Configurable: concurrency, rate limits, source list, compliance flags
+   - Stores raw scrape output with source URL, timestamp, and content hash
+
+2. Implement the Lead Ingestion Worker:
+   - Deduplicates by content hash
+   - Validates schema completeness
+   - Stores to leads table with status "raw"
+
+3. Implement the Lead Normalization Worker:
+   - Standardizes fields: name, company, email, phone, url, source, scraped_at
+   - Handles missing fields gracefully with explicit null values
+   - Updates lead status to "normalized"
+
+4. Implement the Lead Scoring Worker:
+   - Scores leads on: completeness (40%), source reliability (30%),
+     recency (20%), contact reachability (10%)
+   - Stores numeric score (0.0–1.0) and score breakdown
+   - Updates lead status to "scored"
+
+5. Add frontend Settings UI for the scraper (additive only, no aesthetic change):
+   - Toggle: manual vs scheduled mode
+   - Schedule display: shows next run time when in scheduled mode
+   - Concurrency slider: 1–10 workers
+   - Rate limit input: requests per minute
+   - Source list: add/remove URLs with domain validation
+   - Compliance flags: checkboxes for robots.txt respect, rate limiting
+   - All settings persisted via POST /api/v1/settings/scraper
+
+6. Add frontend Results panel updates for leads:
+   - Display normalized leads in a table with score badge
+   - Sortable by score, source, and scraped date
+   - Export button: CSV download of scored leads
+
+7. Add Playwright e2e tests:
+   - Snapshot of the Settings UI with all controls visible
+   - Snapshot of the Results panel with mock lead data
+   - Tests that verify the manual trigger runs and produces a lead
+
+8. Use only allowlisted sources in tests (no arbitrary web scraping in CI).
+   Provide a test fixture with a local HTTP server as the scrape target.
+
+9. All code must be complete and functional. No TODO bodies.
+
+Acceptance criteria:
+- Scraper runs on 2-hour schedule when SCRAPER_ENABLED=true.
+- Manual trigger via UI initiates a scrape and displays results.
+- Lead pipeline produces scored leads visible in the frontend.
+- Playwright snapshots of Settings and Results are stored as CI artifacts.
+- All tests pass in CI.

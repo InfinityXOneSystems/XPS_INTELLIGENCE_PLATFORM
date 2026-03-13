@@ -1,0 +1,47 @@
+You are to create a PR that establishes the mono-repo workspace structure and
+base wiring WITHOUT changing the existing frontend visual aesthetic.
+
+Pre-requisite: FORENSIC_AUDIT/consolidation_plan.json must exist from Phase 1.
+
+Requirements:
+
+1. Choose and configure the workspace manager:
+   - Evaluate npm workspaces vs pnpm workspaces for this stack.
+   - Document the decision with rationale in _OPS/ARCHITECTURE/SYSTEM_TOPOLOGY.md.
+   - Configure workspace root package.json (or pnpm-workspace.yaml).
+
+2. Establish the directory structure from _OPS/ARCHITECTURE/SYSTEM_TOPOLOGY.md:
+   - apps/backend/  (FastAPI service scaffold)
+   - apps/frontend/ (migrate from XPS-INTELLIGENCE-FRONTEND without aesthetic change)
+   - packages/agents/ (shared agent implementations)
+   - packages/shared/ (shared types, schemas, Zod validators)
+
+3. Define shared TypeScript types and Python Pydantic schemas for:
+   - RuntimeCommand (id, type, payload, idempotency_key, created_at)
+   - TaskResult (task_id, status, artifacts, error, completed_at)
+   - LeadRecord (id, source, raw, normalized, score, scored_at)
+   - ArtifactRecord (id, type, task_id, content_url, metadata)
+
+4. Add Railway configuration:
+   - railway.toml with service definitions for api, worker-default,
+     worker-playwright, sandbox-runner
+   - Environment variable documentation in _OPS/RUNBOOK/OPERATOR_RUNBOOK.md
+
+5. Add local development bootstrap:
+   - One command to start all services: api + frontend + workers + redis
+   - Use Docker Compose for local services (redis, postgres)
+   - Document in README.md under "Getting Started"
+
+6. Add feature flags system:
+   - apps/backend/app/config/feature_flags.py
+   - Feature flags: SCRAPER_ENABLED, AUTONOMY_ENABLED, SANDBOX_STRICT_MODE
+   - All flags default to False for safety; must be explicitly enabled
+
+7. All new code must have unit tests. No placeholders. No TODO bodies.
+
+Acceptance criteria:
+- `docker compose up` starts local redis and postgres.
+- Backend health endpoint responds at http://localhost:8000/health.
+- Frontend dev server starts at http://localhost:5173.
+- Existing frontend visual aesthetic is unchanged.
+- All tests pass.

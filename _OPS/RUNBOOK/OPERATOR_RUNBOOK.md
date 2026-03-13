@@ -1,246 +1,175 @@
-# Operator Runbook
+# Operator Runbook — XPS Intelligence Platform
 
-> **Audience:** Repository owners and platform operators.  
-> **Mode:** Approve-only. All automation is hands-off; humans approve PRs and monitor.
+This runbook documents all operator actions required to maintain and operate
+the XPS Intelligence Platform in "approve-only" mode. Human operators approve
+PRs and manage secrets; all other work is automated.
 
----
+## Normal Operation
 
-## Table of Contents
+As an operator, your standard workflow is:
 
-1. [Normal Operation](#1-normal-operation)
-2. [Apply Settings Checklist](#2-apply-settings-checklist)
-3. [Verify Settings](#3-verify-settings)
-4. [Emergency Stop](#4-emergency-stop)
-5. [Runbook Scenarios](#5-runbook-scenarios)
-6. [Escalation](#6-escalation)
+1. Review automated PRs opened by CI/CD agents.
+2. Check that all required status checks pass.
+3. Review the PR diff and TAP compliance checklist.
+4. Approve and merge (or let auto-merge handle eligible PRs).
+5. Monitor Railway deployment logs after merge to `main`.
 
----
+You do **not** need to manually run scripts, deploy, or trigger tests for
+normal operation.
 
-## 1. Normal Operation
+## Required Branch Protections
 
-| Interval | Automated Action |
-| -------- | ---------------- |
-| Every push / PR | CI runs lint, typecheck, tests, security scan |
-| Every merge to `main` | Railway deploys backend + workers |
-| Every 2 hours (when `SCRAPER_SCHEDULE_ENABLED=true`) | Shadow scraper ingests + normalises + scores leads |
-| Weekly (Sundays 02:00 UTC) | Repository self-audit runs; report committed + artifact uploaded |
-| On demand | Trigger any workflow from Actions tab |
+Configure these settings on the `main` branch in
+**Settings → Branches → Branch protection rules → main**:
 
-**Your only required actions:**
-- Review and approve (or reject) PRs raised by the autonomous bot.
-- Monitor the FORENSIC_AUDIT reports for compliance drift.
-- Rotate secrets when prompted by the security workflow.
+| Setting | Required Value |
+|---|---|
+| Require a pull request before merging | Enabled |
+| Required approving reviews | 1 minimum |
+| Dismiss stale pull request approvals when new commits are pushed | Enabled |
+| Require status checks to pass before merging | Enabled |
+| Required status checks | `CI / Lint Markdown`, `CI / Lint YAML`, `CI / Check Repo Structure`, `CI / Check No VITE_ Secrets` |
+| Require branches to be up to date before merging | Enabled |
+| Require conversation resolution before merging | Enabled |
+| Do not allow bypassing the above settings | Enabled |
+| Allow auto-merge | Enabled (for automation) |
+| Automatically delete head branches | Enabled |
 
----
+## Required Repository Settings
 
-## 2. Apply Settings Checklist
+Configure in **Settings → General**:
 
-Use this checklist when bootstrapping a fresh repo or recovering from a settings reset.
+| Setting | Required Value |
+|---|---|
+| Default branch | `main` |
+| Allow squash merging | Enabled |
+| Allow merge commits | Disabled |
+| Allow rebase merging | Disabled |
+| Always suggest updating pull request branches | Enabled |
+| Automatically delete head branches | Enabled |
 
-### 2.1 Repository General Settings
+## Required Environments
 
-Navigate to: **Settings → General**
+Configure in **Settings → Environments**:
 
-- [ ] Default branch set to `main`
-- [ ] Delete branch on merge → **Enabled**
-- [ ] Allow squash merge → **Enabled**
-- [ ] Allow merge commit → **Disabled**
-- [ ] Allow rebase merge → **Enabled**
-- [ ] Allow auto-merge → **Enabled**
-- [ ] Automatically delete head branches → **Enabled**
-- [ ] Issues → **Enabled**
-- [ ] Projects → **Enabled**
-- [ ] Wiki → **Disabled**
+### Environment: `production`
 
-### 2.2 Branch Protection for `main`
+- **Deployment branches:** `main` only
+- **Required reviewers:** 1 operator reviewer (your GitHub user)
+- **Environment secrets:**
+  - `RAILWAY_TOKEN` — Railway API token for production deploys
+  - `GROQ_API_KEY` — Groq LLM API key
+  - `DATABASE_URL` — PostgreSQL connection string (Railway-managed)
+  - `REDIS_URL` — Redis connection string (Railway-managed)
 
-Navigate to: **Settings → Branches → Add rule** (pattern: `main`)
+### Environment: `staging`
 
-- [ ] Require a pull request before merging → **Enabled**
-- [ ] Required approving review count → **1**
-- [ ] Dismiss stale reviews → **Enabled**
-- [ ] Require review from Code Owners → **Enabled** (requires `.github/CODEOWNERS`)
-- [ ] Require status checks to pass before merging → **Enabled**
-  - [ ] Add check: `lint-and-typecheck`
-  - [ ] Add check: `backend-tests`
-  - [ ] Add check: `frontend-build`
-  - [ ] Add check: `security-scan`
-  - [ ] Add check: `repo-self-audit`
-- [ ] Require branches to be up to date → **Enabled**
-- [ ] Require conversation resolution before merging → **Enabled**
-- [ ] Require signed commits → **Enabled**
-- [ ] Include administrators → **Enabled**
-- [ ] Allow force pushes → **Disabled**
-- [ ] Allow deletions → **Disabled**
+- **Deployment branches:** `develop` only
+- **Environment secrets:** (same as production, pointing to staging services)
 
-### 2.3 Environments
+## Railway Configuration
 
-Navigate to: **Settings → Environments**
+### Services
 
-- [ ] Create environment: `production`
-  - [ ] Required reviewers: repo owner
-  - [ ] Deployment branches: `main` only
-  - [ ] Add secret: `RAILWAY_TOKEN_PROD`
-- [ ] Create environment: `staging`
-  - [ ] Deployment branches: `develop`
-  - [ ] Add secret: `RAILWAY_TOKEN_STAGING`
+Deploy these Railway services from this repository:
 
-### 2.4 Secrets and Variables
+| Service name | Railway service type | Start command |
+|---|---|---|
+| `api` | Web service | `cd apps/backend && uvicorn app.main:app --host 0.0.0.0 --port $PORT` |
+| `worker-default` | Worker | `cd apps/backend && python -m app.workers.worker_pool` |
+| `worker-playwright` | Worker | `cd apps/backend && python -m app.workers.playwright_worker` |
+| `sandbox-runner` | Worker | `cd apps/backend && python -m app.workers.sandbox_runner` |
 
-Navigate to: **Settings → Secrets and variables → Actions**
+### Required Railway Environment Variables
 
-**Repository secrets:**
-- [ ] `RAILWAY_TOKEN`
-- [ ] `GROQ_API_KEY`
-- [ ] `OPENAI_API_KEY` (optional)
-- [ ] `AUDIT_PAT` (fine-grained PAT: repo read + metadata)
+Set these in Railway project → Variables for each service:
 
-**Repository variables:**
-- [ ] `RAILWAY_ENVIRONMENT` = `production`
-- [ ] `AUTONOMY_ENABLED` = `true`
-- [ ] `SCRAPER_SCHEDULE_ENABLED` = `true`
-- [ ] `AUDIT_OUTPUT_DIR` = `FORENSIC_AUDIT`
-
-### 2.5 Labels
-
-Navigate to: **Issues → Labels → New label** (or use GitHub CLI):
-
-```bash
-gh label create "auto-merge"      --color "#0075ca" --description "Bot PRs eligible for autonomous merge"
-gh label create "governance"      --color "#e4e669" --description "Settings / compliance / policy changes"
-gh label create "forensic-audit"  --color "#d93f0b" --description "Audit and evidence collection PRs"
-gh label create "security"        --color "#b60205" --description "Security patches and hardening"
-gh label create "backend"         --color "#0e8a16" --description "Changes in apps/backend/"
-gh label create "frontend"        --color "#1d76db" --description "Changes in apps/frontend/"
-gh label create "ops"             --color "#5319e7" --description "_OPS/ infrastructure changes"
-gh label create "documentation"   --color "#0075ca" --description "Docs-only changes"
-gh label create "dependencies"    --color "#cccccc" --description "Dependency bumps"
+```text
+DATABASE_URL=<railway-postgres-connection-string>
+REDIS_URL=<railway-redis-connection-string>
+GROQ_API_KEY=<your-groq-api-key>
+LLM_PROVIDER=groq
+SCRAPER_ENABLED=true
+AUTONOMY_ENABLED=true
+ENVIRONMENT=production
 ```
 
-### 2.6 CODEOWNERS
+## Emergency Procedures
 
-Ensure `.github/CODEOWNERS` exists:
+### Stop All Automation
 
-```
-*                    @InfinityXOneSystems
-/_OPS/               @InfinityXOneSystems
-/.github/            @InfinityXOneSystems
-/FORENSIC_AUDIT/     @InfinityXOneSystems
-```
+To halt all autonomous operations immediately:
 
----
+1. In Railway: set `AUTONOMY_ENABLED=false` on all services.
+2. In GitHub: go to **Actions → Workflows** and disable `audit.yml`.
+3. In GitHub: disable the 2-hour scheduled workflow trigger.
 
-## 3. Verify Settings
+Services will continue serving traffic but no background scraping or agent
+tasks will execute.
 
-### 3.1 Trigger the Self-Audit Workflow
+### Rotate Secrets
 
-```
-Actions → repo-self-audit → Run workflow (branch: main)
-```
+1. Generate new credentials from the provider (Railway, Groq, etc.).
+2. Update the GitHub Environment secret and the Railway variable in the same
+   session.
+3. Trigger a manual deployment to pick up the new credentials.
+4. Verify the service health endpoint responds correctly.
+5. Revoke the old credentials.
 
-Wait for the workflow to complete, then review:
+### Rollback a Deployment
 
-- [ ] Workflow status: **green**
-- [ ] Artifact `repo-settings-report` uploaded
-- [ ] `FORENSIC_AUDIT/repo_settings_report.md` committed with current timestamp
+1. In Railway: use the **Deployments** panel to revert to a previous build.
+2. In GitHub: open a PR that reverts the offending commit on `main`.
+3. CI will run, and Railway auto-deploys the reverted build after merge.
 
-### 3.2 Review the Report
+## Verification Procedure (Before Approving a Release PR)
 
-Open `FORENSIC_AUDIT/repo_settings_report.md` and verify:
+Run through this checklist before approving any release candidate:
 
-- [ ] `Default branch` = `main`
-- [ ] Branch protection for `main` is active (no ⚠️ on protection section)
-- [ ] Required status checks list matches §2.2 above
-- [ ] Environments `production` and `staging` listed
-- [ ] Secrets section lists all required secrets (names only — values never shown)
-- [ ] No unexpected open PRs
+- [ ] All required CI status checks are green.
+- [ ] `FORENSIC_AUDIT/repo_settings_report.json` shows `"status": "PASS"`.
+- [ ] `TEST_EVIDENCE/` contains the latest Playwright snapshot artifacts.
+- [ ] No open P0 or P1 issues in the repository.
+- [ ] Railway staging deployment is healthy (`/health` endpoint returns 200).
+- [ ] No new secrets exposed in the diff (CI secret scan passed).
 
-### 3.3 Confirm Branch Protection via CLI
+## Audit Reports
 
-```bash
-gh api repos/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/branches/main/protection \
-  --jq '{enforce_admins: .enforce_admins.enabled, required_reviews: .required_pull_request_reviews.required_approving_review_count}'
-```
+The `audit.yml` workflow generates reports on every run and uploads them as
+GitHub Actions artifacts. To review:
 
-Expected output:
-```json
-{
-  "enforce_admins": true,
-  "required_reviews": 1
-}
-```
+1. Go to **Actions → Audit → latest run**.
+2. Download the `forensic-audit-report` artifact.
+3. Review `repo_settings_report.json` for compliance gaps.
 
----
+For historical reports, check the Actions artifact retention (default: 30 days).
 
-## 4. Emergency Stop
+## Troubleshooting
 
-### 4.1 Disable Autonomous Scheduling
+### CI fails on "Check Repo Structure"
 
-1. Go to **Settings → Secrets and variables → Actions → Variables**
-2. Set `AUTONOMY_ENABLED` = `false`
-3. Set `SCRAPER_SCHEDULE_ENABLED` = `false`
+A required governance file is missing. Check which file is reported missing
+and ensure the branch contains it. All files listed in
+`_OPS/ARCHITECTURE/SYSTEM_TOPOLOGY.md` under "Repository Layout" are required.
 
-All scheduled workflows check these variables before running.
+### CI fails on "Check No VITE_ Secrets"
 
-### 4.2 Disable a Workflow Entirely
+A file in the repository contains a pattern matching `VITE_` followed by a
+secret-like name and value. Locate the file from the CI output, remove the
+hardcoded secret, and replace it with an environment variable reference.
 
-```bash
-gh workflow disable <workflow-name>
-```
+### Audit workflow fails with API 403
 
-Or via: **Actions → \<workflow\> → ... → Disable workflow**
+The `GITHUB_TOKEN` in the audit workflow does not have sufficient permissions
+to read branch protection settings. This is expected on repositories where
+the token has only `contents: read`. The audit will still produce a report
+noting that branch protection could not be verified — configure branch
+protection manually per the settings above.
 
-### 4.3 Rotate a Compromised Secret
+### Railway deploy fails
 
-1. **Immediately** revoke the compromised credential at the source (Railway, Groq, etc.)
-2. Issue new credential
-3. Update via: **Settings → Secrets and variables → Actions → \<SECRET_NAME\> → Update**
-4. Trigger a new deployment to confirm the new secret is effective
+Check Railway build logs. Common causes:
 
----
-
-## 5. Runbook Scenarios
-
-### A. Self-audit report shows ⚠️ unavailable for branch protection
-
-**Cause:** The `AUDIT_PAT` token lacks `admin:repo_hook` or `repo` scope, or branch protection
-is not yet configured.  
-**Resolution:**
-1. Apply branch protection per §2.2.
-2. Re-generate `AUDIT_PAT` with `repo` scope (read-only sufficient for audit).
-3. Re-run the self-audit workflow.
-
-### B. Workflow fails with `GITHUB_TOKEN` permission error
-
-**Cause:** The workflow's `contents: write` permission is blocked by repo settings.  
-**Resolution:** Verify **Settings → Actions → General → Workflow permissions** is set to
-"Read and write permissions".
-
-### C. No artifacts uploaded from self-audit run
-
-**Cause:** The `upload-artifact` step failed, or the report files were not generated.  
-**Check:** Expand the "Upload reports as artifacts" step in the Actions log.  
-**Resolution:** Ensure `FORENSIC_AUDIT/` directory exists in repo and `AUDIT_PAT` is valid.
-
-### D. Railway deploy fails after merge to `main`
-
-**Cause:** `RAILWAY_TOKEN` is expired or the Railway service config changed.  
-**Resolution:**
-1. Check Railway dashboard for the service status.
-2. Rotate `RAILWAY_TOKEN` per §4.3.
-3. Re-run the deploy workflow manually from Actions.
-
----
-
-## 6. Escalation
-
-| Severity | Who | Channel |
-| -------- | --- | ------- |
-| P0 — production down | Repo owner | Direct |
-| P1 — security incident | Repo owner + GitHub Security Advisories | Private advisory |
-| P2 — audit drift | Repo owner | PR comment / issue |
-| P3 — non-critical CI flake | Bot auto-retry + owner review | GitHub issue |
-
----
-
-*This runbook is auto-linked from `.github/copilot-instructions.md` and REPO_SETTINGS_BASELINE.md.*
+- Missing environment variable (check the required variables list above).
+- Application startup error (check `apps/backend` startup logs).
+- Database migration pending (run `alembic upgrade head` as a one-off job).

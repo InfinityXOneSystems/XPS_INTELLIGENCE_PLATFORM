@@ -1,0 +1,50 @@
+You are to create a PR that unifies all execution through the backend runtime
+controller and enforces the sandbox execution boundary.
+
+Pre-requisite: Phase 2 mono-repo scaffold must be in place.
+
+Requirements:
+
+1. Implement the RuntimeController as the single execution authority:
+   - apps/backend/app/runtime/runtime_controller.py
+   - Accepts RuntimeCommand objects with idempotency keys
+   - Routes to CommandValidator → CommandRouter → TaskDispatcher
+   - Returns immediate TaskResult (status: queued) with task_id
+
+2. Implement CommandValidator:
+   - Validates command type against the registered command schema
+   - Enforces capability token requirements per _OPS/POLICY/TAP.md
+   - Rejects unknown or malformed commands with a structured error
+
+3. Implement TaskDispatcher:
+   - Enqueues validated commands to Redis queue
+   - Tracks task state in TaskStateStore (Redis-backed, no silent fallback)
+   - Assigns worker pool based on command type
+
+4. Implement sandbox execution boundary:
+   - All generate_code, run_shell, and run_playwright commands execute in the
+     sandbox-runner service
+   - Sandbox uses per-task workspace directories
+   - Artifacts (logs, diffs, screenshots, traces) are captured and stored
+   - Network access in sandbox is allowlist-controlled via SANDBOX_ALLOWED_HOSTS
+
+5. Update the frontend orchestrator to be a command client only:
+   - src/lib/orchestrator.ts submits commands to POST /api/v1/runtime/command
+   - Polls task status via GET /api/v1/runtime/tasks/{task_id}
+   - Receives artifacts via WebSocket push
+   - Does NOT execute any commands locally
+
+6. Add end-to-end tests demonstrating the full flow:
+   - User submits a command from the frontend
+   - Command is queued as a task
+   - Worker processes the task in the sandbox
+   - Artifact is produced and stored
+   - Frontend receives the artifact and renders it in the results panel
+
+7. All code must be complete and functional. No TODO bodies. No placeholders.
+
+Acceptance criteria:
+- RuntimeController accepts and queues commands.
+- Sandbox boundary prevents direct execution outside the sandbox service.
+- End-to-end test passes in CI with a real artifact produced.
+- Frontend correctly receives and renders the artifact result.
