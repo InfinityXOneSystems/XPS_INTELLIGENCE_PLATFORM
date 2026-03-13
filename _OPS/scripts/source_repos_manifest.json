@@ -1,0 +1,46 @@
+{
+  "schema_version": "1.0",
+  "description": "Source repositories to be consolidated into XPS_INTELLIGENCE_PLATFORM. Each entry may have a 'pin_sha' to lock analysis to a specific commit. Leave 'pin_sha' as null to always analyse the latest default-branch HEAD.",
+  "repos": [
+    {
+      "owner": "InfinityXOneSystems",
+      "repo": "XPS_INTELLIGENCE_SYSTEM",
+      "phase": "1",
+      "role": "backend-source",
+      "pin_sha": null,
+      "note": "Phase 1 — primary backend / agent source repo"
+    },
+    {
+      "owner": "InfinityXOneSystems",
+      "repo": "XPS-INTELLIGENCE-FRONTEND",
+      "phase": "1",
+      "role": "frontend-source",
+      "pin_sha": null,
+      "note": "Phase 1 — primary frontend (Next.js / React) source repo"
+    },
+    {
+      "owner": "InfinityXOneSystems",
+      "repo": "QUANTUM-X-BUILD",
+      "phase": "2",
+      "role": "build-pipelines",
+      "pin_sha": null,
+      "note": "Phase 2 — build pipeline and Quantum-X integration source repo"
+    },
+    {
+      "owner": "InfinityXOneSystems",
+      "repo": "VIZUAL-X-ADMIN-CONTROL-PLANE",
+      "phase": "3",
+      "role": "admin-control-plane",
+      "pin_sha": null,
+      "note": "Phase 3 — admin control plane source repo"
+    },
+    {
+      "owner": "InfinityXOneSystems",
+      "repo": "CONSTRUCT-IQ-360",
+      "phase": "4",
+      "role": "constructiq-agent",
+      "pin_sha": null,
+      "note": "Phase 4 — ConstructIQ-360 and full agent suite source repo"
+    }
+  ]
+}

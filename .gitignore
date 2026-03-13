@@ -14,6 +14,8 @@ yarn-error.log*
 # Next.js
 apps/frontend/.next/
 apps/frontend/out/
+apps/frontend/tsconfig.tsbuildinfo
+apps/frontend/next-env.d.ts
 
 # Build artifacts
 dist/
@@ -23,6 +25,7 @@ build/
 playwright-report/
 test-results/
 tests/e2e/snapshots/*.png
+tests/e2e/snapshots/.last-run.json
 # Keep snapshot directory tracked, but ignore generated screenshots
 !tests/e2e/snapshots/.gitkeep
 

@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "generated_at": "2026-03-13T20:28:35.627467+00:00",
+  "generated_at": "2026-03-13T20:56:28.307125+00:00",
   "repository": "InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM",
   "repo_info": {
     "default_branch": "main",
@@ -115,7 +115,7 @@
       "state": "open",
       "draft": false,
       "created_at": "2026-03-13T20:27:42Z",
-      "updated_at": "2026-03-13T20:27:43Z",
+      "updated_at": "2026-03-13T20:28:50Z",
       "head_ref": "dependabot/github_actions/actions/labeler-6",
       "base_ref": "main",
       "author": "dependabot[bot]",
@@ -207,11 +207,11 @@
     },
     {
       "number": 3,
-      "title": "[WIP] Add comprehensive repo bootstrap for InfinityXOneSystems",
+      "title": "feat: repo bootstrap \u2014 enterprise governance scaffolding, CI workflows, and meta-files",
       "state": "open",
       "draft": true,
       "created_at": "2026-03-13T20:14:07Z",
-      "updated_at": "2026-03-13T20:19:21Z",
+      "updated_at": "2026-03-13T20:42:58Z",
       "head_ref": "copilot/bootstrap-repo-infinityxonesystems",
       "base_ref": "main",
       "author": "Copilot",
