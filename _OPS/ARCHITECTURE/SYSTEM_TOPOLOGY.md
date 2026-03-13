@@ -81,10 +81,32 @@ client, not an execution authority.
 ## Scraper System
 
 - **Universal Scraper:** supports both manual trigger and scheduled 2-hour cycle
-- **Compliance:** allowlist-based domain targeting; rate limiting enforced
+- **Compliance default:** robots.txt is **ignored** (operator directive, 2026-03-13)
+  — set `SCRAPER_RESPECT_ROBOTS_TXT=true` to honour robots.txt
 - **Pipeline:** scrape → ingest → normalize → score → store
 - **Toggle:** `SCRAPER_ENABLED` environment variable (Railway + GitHub Actions)
 - **Settings UI:** concurrency, rate limits, source selection, compliance flags
+
+### Parallelism and Budget Caps
+
+| Parameter | Default | Environment Variable |
+|---|---|---|
+| Global concurrency | 20 | `SCRAPER_MAX_CONCURRENCY` |
+| Per-domain concurrency | 5 | `SCRAPER_DOMAIN_CONCURRENCY` |
+| Max requests / job | 10 000 | `SCRAPER_MAX_REQUESTS` |
+| Max pages / job | 5 000 | `SCRAPER_MAX_PAGES` |
+| Max runtime / job | 3 600 s | `SCRAPER_MAX_RUNTIME_SECONDS` |
+| Back-off base | 250 ms | `SCRAPER_BACKOFF_BASE_MS` |
+| Back-off ceiling | 30 000 ms | `SCRAPER_BACKOFF_MAX_MS` |
+| Request timeout | 30 000 ms | `SCRAPER_REQUEST_TIMEOUT_MS` |
+| Retry max | 3 | `SCRAPER_RETRY_MAX` |
+
+The scraper configuration module lives at
+`packages/agents/shadow-scraper/config.py`. Tests at
+`packages/agents/shadow-scraper/tests/test_config.py` (59 tests) verify
+all defaults and override paths. The `shadow-scraper-proof` CI job
+emits a `TEST_EVIDENCE/shadow-scraper-concurrency-metrics.json` artifact
+on every run.
 
 ## Lead Pipeline
 
@@ -134,6 +156,16 @@ Push / PR
 | `GROQ_API_KEY` | Railway (backend) | Groq LLM provider |
 | `LLM_PROVIDER` | Railway (backend) | Primary LLM provider name |
 | `SCRAPER_ENABLED` | Railway (backend) | Enable/disable scraper schedule |
+| `SCRAPER_RESPECT_ROBOTS_TXT` | Railway (backend) | `false` (default) / `true` to honour robots.txt |
+| `SCRAPER_MAX_CONCURRENCY` | Railway (backend) | Global concurrent-request cap (default 20) |
+| `SCRAPER_DOMAIN_CONCURRENCY` | Railway (backend) | Per-domain concurrent cap (default 5) |
+| `SCRAPER_MAX_REQUESTS` | Railway (backend) | Max requests per scrape job (default 10000) |
+| `SCRAPER_MAX_PAGES` | Railway (backend) | Max pages per scrape job (default 5000) |
+| `SCRAPER_MAX_RUNTIME_SECONDS` | Railway (backend) | Hard job deadline in seconds (default 3600) |
+| `SCRAPER_BACKOFF_BASE_MS` | Railway (backend) | Adaptive back-off base delay ms (default 250) |
+| `SCRAPER_BACKOFF_MAX_MS` | Railway (backend) | Adaptive back-off ceiling ms (default 30000) |
+| `SCRAPER_REQUEST_TIMEOUT_MS` | Railway (backend) | Per-request timeout ms (default 30000) |
+| `SCRAPER_RETRY_MAX` | Railway (backend) | Max retries per failed request (default 3) |
 | `AUTONOMY_ENABLED` | Railway + Actions | Master autonomy toggle |
 | `VITE_API_URL` | Railway (frontend) | Backend API base URL |
 | `GITHUB_TOKEN` | Actions (auto) | GitHub API access (read-only in audit) |

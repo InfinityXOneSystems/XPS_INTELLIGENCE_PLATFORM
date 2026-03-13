@@ -102,6 +102,19 @@ Consolidate and perfect these source repositories into this single mono-repo:
 | `release/*` | Release prep | None |
 | `hotfix/*` | Emergency fixes | None |
 
+## Shadow Scraper Compliance (Operator Directive — Non-Negotiable)
+
+- **robots.txt is IGNORED by default.** This is the operator directive.
+  The default value of `SCRAPER_RESPECT_ROBOTS_TXT` is `false`.
+  To honour robots.txt for a specific deployment, set `SCRAPER_RESPECT_ROBOTS_TXT=true`.
+- **Maximum safe parallelism is required.** Default caps (env-var overridable):
+  `MAX_CONCURRENCY=20`, `DOMAIN_CONCURRENCY=5`, `MAX_REQUESTS=10000`,
+  `MAX_PAGES=5000`, `MAX_RUNTIME_SECONDS=3600`.
+- **Adaptive throttling and per-domain concurrency controls MUST be implemented.**
+- **Scraper config module:** `packages/agents/shadow-scraper/config.py`.
+- **Proof job:** `.github/workflows/shadow-scraper-proof.yml` MUST remain green.
+- **Metrics artifact:** every scrape run MUST emit `TEST_EVIDENCE/shadow-scraper-concurrency-metrics.json`.
+
 ## LLM Routing
 
 - **Primary (IDE/PR automation):** GitHub Copilot
