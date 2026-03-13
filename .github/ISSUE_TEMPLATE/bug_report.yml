@@ -1,0 +1,96 @@
+name: 🐛 Bug Report
+description: Report a bug or unexpected behavior
+title: "fix: [short description]"
+labels: ["bug", "needs-triage"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Bug Report
+        Thanks for taking the time to report a bug. Please fill out the sections below completely.
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      description: Which component is affected?
+      options:
+        - Backend API
+        - Frontend UI
+        - Shadow Scraper
+        - Agent (specify in description)
+        - CI/CD Workflow
+        - Railway Deployment
+        - Database / Postgres
+        - Redis / Cache
+        - Memory System
+        - Infinity Orchestrator
+        - Documentation
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      options:
+        - Critical (system down / data loss)
+        - High (major feature broken)
+        - Medium (feature partially broken)
+        - Low (minor issue / cosmetic)
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: A clear and concise description of the bug.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: Exact steps to reproduce the behavior.
+      placeholder: |
+        1. Go to '...'
+        2. Click on '...'
+        3. Observe '...'
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What should have happened?
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+      description: What actually happened? Include error messages and stack traces.
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Relevant environment details.
+      placeholder: |
+        - Railway environment: staging / production
+        - Browser (if UI): Chrome 120 / Firefox 121
+        - Workflow run ID (if CI): 
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Screenshots, logs, or any other relevant context.

@@ -1,0 +1,178 @@
+name: Docs Sync
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    # Daily docs update at 06:00 UTC
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: read
+  issues: read
+
+jobs:
+  # ────────────────────────────────────────────────────────
+  # Update CHANGELOG from recent merged PRs
+  # ────────────────────────────────────────────────────────
+  update-changelog:
+    name: Update CHANGELOG
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Get recent merged PRs
+        id: prs
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const since = new Date();
+            since.setDate(since.getDate() - 1); // Last 24 hours
+
+            const { data: prs } = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'closed',
+              base: 'main',
+              per_page: 20,
+              sort: 'updated',
+              direction: 'desc',
+            });
+
+            const merged = prs.filter(pr =>
+              pr.merged_at && new Date(pr.merged_at) > since
+            );
+
+            if (merged.length === 0) {
+              console.log('No PRs merged in last 24h');
+              core.setOutput('has_changes', 'false');
+              return;
+            }
+
+            const entries = merged.map(pr => {
+              const type = pr.title.match(/^(\w+)[\(:]/)?.[1] || 'chore';
+              return `- ${pr.title} (#${pr.number}) @${pr.user.login}`;
+            }).join('\n');
+
+            core.setOutput('entries', entries);
+            core.setOutput('has_changes', 'true');
+            console.log(`Found ${merged.length} merged PRs`);
+
+      - name: Update CHANGELOG.md
+        if: steps.prs.outputs.has_changes == 'true'
+        run: |
+          TODAY=$(date +%Y-%m-%d)
+          ENTRIES="${{ steps.prs.outputs.entries }}"
+
+          # Insert entries under [Unreleased] section
+          if grep -q "## \[Unreleased\]" CHANGELOG.md; then
+            sed -i "/## \[Unreleased\]/a\\\\n### Merged $(date +%Y-%m-%d)\n${ENTRIES}" CHANGELOG.md
+          fi
+
+          git config --local user.email "action@github.com"
+          git config --local user.name "XPS Autonomous Pipeline"
+          git diff --quiet CHANGELOG.md || (
+            git add CHANGELOG.md &&
+            git commit -m "docs: update CHANGELOG [skip ci]" &&
+            git push
+          )
+        continue-on-error: true
+
+  # ────────────────────────────────────────────────────────
+  # Update GitHub Pages docs
+  # ────────────────────────────────────────────────────────
+  update-pages:
+    name: Update GitHub Pages
+    runs-on: ubuntu-latest
+    needs: update-changelog
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Build docs site
+        run: |
+          # Build static docs from markdown files
+          # Uses a minimal approach until a proper docs system is configured
+          mkdir -p _site
+
+          # Copy key docs
+          cp README.md _site/index.md
+          cp BLUEPRINT.md _site/blueprint.md
+          cp ROADMAP.md _site/roadmap.md
+          cp CHANGELOG.md _site/changelog.md
+          cp TODO.md _site/todo.md
+
+          # Create simple HTML index
+          cat > _site/index.html << 'HTML'
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>XPS Intelligence Platform</title>
+            <style>
+              body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+                     max-width: 800px; margin: 0 auto; padding: 2rem; }
+              a { color: #0366d6; }
+            </style>
+          </head>
+          <body>
+            <h1>XPS Intelligence Platform</h1>
+            <p>Autonomous Intelligence Monorepo — Phase 5 Foundation</p>
+            <ul>
+              <li><a href="blueprint.md">Blueprint</a></li>
+              <li><a href="roadmap.md">Roadmap</a></li>
+              <li><a href="changelog.md">Changelog</a></li>
+              <li><a href="todo.md">TODO</a></li>
+            </ul>
+          </body>
+          </html>
+          HTML
+
+          echo "✅ Docs site built"
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        if: github.ref == 'refs/heads/main'
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./_site
+          commit_message: "docs: auto-update GitHub Pages [skip ci]"
+        continue-on-error: true  # Don't block if Pages not configured yet
+
+  # ────────────────────────────────────────────────────────
+  # Update README badges and status
+  # ────────────────────────────────────────────────────────
+  update-readme:
+    name: Update README
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update last-updated timestamp
+        run: |
+          TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M UTC")
+          # Only update if the timestamp line exists
+          if grep -q "Last updated: auto" README.md; then
+            sed -i "s/Last updated: auto.*/Last updated: ${TIMESTAMP}/" README.md
+            git config --local user.email "action@github.com"
+            git config --local user.name "XPS Autonomous Pipeline"
+            git diff --quiet README.md || (
+              git add README.md &&
+              git commit -m "docs: update README timestamp [skip ci]" &&
+              git push
+            )
+          fi
+        continue-on-error: true
