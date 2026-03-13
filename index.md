@@ -149,4 +149,4 @@ Human intervention is reserved for:
 
 ---
 
-*This README is automatically maintained by the `docs-sync` workflow. Last updated: auto.*
+*This README is automatically maintained by the `docs-sync` workflow. Last updated: 2026-03-13 20:25 UTC
