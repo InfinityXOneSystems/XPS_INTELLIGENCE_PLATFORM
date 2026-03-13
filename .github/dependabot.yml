@@ -1,0 +1,72 @@
+version: 2
+
+updates:
+  # Python backend dependencies
+  - package-ecosystem: pip
+    directory: /apps/backend
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+    open-pull-requests-limit: 10
+    labels:
+      - dependencies
+      - backend
+    commit-message:
+      prefix: "chore(deps-backend)"
+    groups:
+      python-minor:
+        update-types:
+          - minor
+          - patch
+
+  # Frontend npm dependencies
+  - package-ecosystem: npm
+    directory: /apps/frontend
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+    open-pull-requests-limit: 10
+    labels:
+      - dependencies
+      - frontend
+    commit-message:
+      prefix: "chore(deps-frontend)"
+    groups:
+      npm-minor:
+        update-types:
+          - minor
+          - patch
+
+  # Root npm dependencies
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
+    commit-message:
+      prefix: "chore(deps)"
+
+  # GitHub Actions
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+    open-pull-requests-limit: 10
+    labels:
+      - dependencies
+      - ci/cd
+    commit-message:
+      prefix: "ci(deps)"
+    groups:
+      actions-minor:
+        update-types:
+          - minor
+          - patch

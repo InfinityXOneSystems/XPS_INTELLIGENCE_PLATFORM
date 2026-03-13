@@ -1,0 +1,112 @@
+name: Security Scan
+
+on:
+  push:
+    branches: [main, develop, "feature/**", "fix/**", "release/**", "hotfix/**"]
+  pull_request:
+    branches: [main, develop]
+  schedule:
+    # Weekly full scan every Sunday at 02:00 UTC
+    - cron: "0 2 * * 0"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+
+jobs:
+  # ────────────────────────────────────────────────────────
+  # CodeQL Static Analysis
+  # ────────────────────────────────────────────────────────
+  codeql:
+    name: CodeQL (${{ matrix.language }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - language: python
+            build-mode: none
+          - language: javascript-typescript
+            build-mode: none
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.build-mode }}
+          queries: security-extended,security-and-quality
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+        if: matrix.build-mode == 'autobuild'
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:${{ matrix.language }}"
+
+  # ────────────────────────────────────────────────────────
+  # Secret Scanning (GitGuardian)
+  # ────────────────────────────────────────────────────────
+  gitguardian:
+    name: GitGuardian Secret Scan
+    runs-on: ubuntu-latest
+    if: github.actor != 'dependabot[bot]'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: GitGuardian scan
+        uses: GitGuardian/ggshield-action@v1
+        env:
+          GITHUB_PUSH_BEFORE_SHA: ${{ github.event.before }}
+          GITHUB_PUSH_BASE_SHA: ${{ github.event.base }}
+          GITHUB_PULL_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          GITHUB_DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          GITGUARDIAN_API_KEY: ${{ secrets.GITGUARDIAN_API_KEY }}
+        continue-on-error: true  # Don't block CI during foundation phase
+
+  # ────────────────────────────────────────────────────────
+  # Dependency Review (for PRs only)
+  # ────────────────────────────────────────────────────────
+  dependency-review:
+    name: Dependency Review
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Dependency Review
+        uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: high
+          allow-licenses: MIT, Apache-2.0, BSD-2-Clause, BSD-3-Clause, ISC, Python-2.0
+        continue-on-error: true  # Don't block during foundation phase
+
+  # ────────────────────────────────────────────────────────
+  # Security Gate Summary
+  # ────────────────────────────────────────────────────────
+  security-gate:
+    name: Security Gate
+    runs-on: ubuntu-latest
+    needs: [codeql, gitguardian]
+    if: always()
+    steps:
+      - name: Security summary
+        run: |
+          echo "## Security Scan Summary" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Check | Result |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|-------|--------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| CodeQL | ${{ needs.codeql.result }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| GitGuardian | ${{ needs.gitguardian.result }} |" >> "$GITHUB_STEP_SUMMARY"
+
+          if [[ "${{ needs.codeql.result }}" == "failure" ]]; then
+            echo "❌ CodeQL found security issues — review the Security tab"
+            exit 1
+          fi
+          echo "✅ Security gate passed"

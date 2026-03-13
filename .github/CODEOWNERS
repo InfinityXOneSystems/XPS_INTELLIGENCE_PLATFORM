@@ -1,0 +1,37 @@
+# CODEOWNERS
+# This file defines code ownership for the XPS Intelligence Platform.
+# Owners are automatically requested for review when their files are changed.
+# See: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Global default — all files require InfinityXOneSystems review
+*                           @InfinityXOneSystems
+
+# GitHub configuration — org admin review required
+.github/                    @InfinityXOneSystems
+
+# Core architecture docs
+BLUEPRINT.md                @InfinityXOneSystems
+ROADMAP.md                  @InfinityXOneSystems
+.github/ARCHITECTURE.md     @InfinityXOneSystems
+.github/copilot-instructions.md @InfinityXOneSystems
+
+# Backend application
+apps/backend/               @InfinityXOneSystems
+
+# Frontend application — extra care: additions only, no breaking changes
+apps/frontend/              @InfinityXOneSystems
+
+# Agents — sensitive autonomous code
+packages/agents/            @InfinityXOneSystems
+
+# Shared packages
+packages/shared/            @InfinityXOneSystems
+
+# CI/CD workflows — security-sensitive
+.github/workflows/          @InfinityXOneSystems
+
+# Scripts — security-sensitive
+scripts/                    @InfinityXOneSystems
+
+# Tests
+tests/                      @InfinityXOneSystems
