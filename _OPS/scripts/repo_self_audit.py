@@ -76,7 +76,7 @@ def gh_get(path: str, accept: str = "application/vnd.github+json") -> object:
             "Authorization": f"Bearer {GITHUB_TOKEN}",
             "Accept": accept,
             "X-GitHub-Api-Version": "2022-11-28",
-            "User-Agent": "xps-repo-self-audit/1.0",
+            "User-Agent": "repo-self-audit/1.0",
         },
     )
     try:
@@ -169,7 +169,7 @@ def collect_branch_protection(default_branch: str) -> dict:
 
 def _parse_protection(raw: dict) -> dict:
     if not isinstance(raw, dict):
-        return "unavailable"
+        return {"status": "unavailable"}
     rsc = raw.get("required_status_checks") or {}
     prr = raw.get("required_pull_request_reviews") or {}
     return {
@@ -435,9 +435,9 @@ def render_markdown(report: dict) -> str:
         for branch, rules in protection.items():
             lines.append(f"### Branch: `{branch}`")
             lines.append("")
-            if rules == UA:
+            if rules == UA or (isinstance(rules, dict) and rules.get("status") == UA):
                 lines.append("> ⚠️ Protection rules unavailable (not configured or insufficient permissions).")
-            elif isinstance(rules, dict):
+            elif isinstance(rules, dict) and "status" not in rules:
                 rsc = rules.get("required_status_checks", {}) or {}
                 lines.append(f"**Enforce admins:** {_md_val(rules.get('enforce_admins'))}")
                 lines.append(f"**Force pushes allowed:** {_md_val(rules.get('allow_force_pushes'))}")
