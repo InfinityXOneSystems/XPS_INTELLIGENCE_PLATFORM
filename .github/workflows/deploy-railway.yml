@@ -74,7 +74,7 @@ jobs:
     if: needs.setup.outputs.deploy_backend == 'true'
     environment: ${{ needs.setup.outputs.environment }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Install Railway CLI
         run: npm install -g @railway/cli
@@ -120,7 +120,7 @@ jobs:
     if: needs.setup.outputs.deploy_frontend == 'true'
     environment: ${{ needs.setup.outputs.environment }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Install Railway CLI
         run: npm install -g @railway/cli
