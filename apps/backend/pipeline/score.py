@@ -27,11 +27,7 @@ async def score_lead(db: AsyncSession, lead_id: uuid.UUID) -> Lead:
         raise ValueError(f"Lead {lead_id} has no normalized_data; run normalize first")
 
     norm = lead.normalized_data
-    score = sum(
-        weight
-        for field, weight in FIELD_WEIGHTS.items()
-        if norm.get(field)
-    )
+    score = sum(weight for field, weight in FIELD_WEIGHTS.items() if norm.get(field))
     score = round(min(max(score, 0.0), 1.0), 4)
 
     lead.score = score

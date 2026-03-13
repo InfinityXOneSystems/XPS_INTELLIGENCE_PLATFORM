@@ -1,4 +1,5 @@
 'use client';
+import Link from 'next/link';
 import { useState } from 'react';
 
 type ArtifactType = 'image' | 'video' | 'music' | 'template' | 'chart' | 'lead' | 'web_browse' | 'system' | 'text';
@@ -16,6 +17,7 @@ function ArtifactPanel({ artifact }: { artifact: ArtifactItem }) {
     switch (artifact.type) {
       case 'image':
         return artifact.storageUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
           <img src={artifact.storageUrl} alt={artifact.title} style={{ maxWidth: '100%', borderRadius: 4 }} />
         ) : (
           <div style={{ padding: 16, color: '#666', fontSize: 13 }}>Image: {artifact.title}</div>
@@ -178,12 +180,12 @@ export default function WorkspacePage() {
               Natural language → Artifacts
             </p>
           </div>
-          <a
+          <Link
             href="/"
             style={{ fontSize: 12, color: '#6366f1', textDecoration: 'none' }}
           >
             ← Dashboard
-          </a>
+          </Link>
         </div>
 
         <form onSubmit={handleSubmit} style={{ marginBottom: 24 }}>

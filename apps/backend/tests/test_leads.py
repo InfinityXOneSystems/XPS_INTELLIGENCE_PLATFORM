@@ -5,9 +5,9 @@ from typing import AsyncGenerator
 
 import pytest
 import pytest_asyncio
-from httpx import AsyncClient, ASGITransport
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
-from sqlalchemy.orm import declarative_base
+from httpx import ASGITransport, AsyncClient
+from sqlalchemy.ext.asyncio import (AsyncSession, async_sessionmaker,
+                                    create_async_engine)
 
 from apps.backend.core.database import Base, get_db
 from apps.backend.main import app
@@ -45,7 +45,9 @@ async def client(db_session: AsyncSession):
         yield db_session
 
     app.dependency_overrides[get_db] = override_get_db
-    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as ac:
         yield ac
     app.dependency_overrides.clear()
 
@@ -119,7 +121,11 @@ async def test_score_lead(client: AsyncClient, db_session: AsyncSession):
 
     lead = await ingest_raw_lead(
         db=db_session,
-        raw_data={"email": "carol@example.com", "name": "Carol", "phone": "555-555-5555"},
+        raw_data={
+            "email": "carol@example.com",
+            "name": "Carol",
+            "phone": "555-555-5555",
+        },
         source_url="https://example.com",
         idempotency_key="test:lead:score:001",
     )

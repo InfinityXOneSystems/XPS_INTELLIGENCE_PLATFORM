@@ -5,7 +5,7 @@ from typing import Optional
 
 import structlog
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy import delete, select
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from apps.backend.core.database import get_db
@@ -23,7 +23,9 @@ async def list_artifacts(
     artifact_type: Optional[str] = Query(None),
     db: AsyncSession = Depends(get_db),
 ):
-    stmt = select(Artifact).order_by(Artifact.created_at.desc()).offset(skip).limit(limit)
+    stmt = (
+        select(Artifact).order_by(Artifact.created_at.desc()).offset(skip).limit(limit)
+    )
     if artifact_type:
         stmt = stmt.where(Artifact.artifact_type == artifact_type)
     result = await db.execute(stmt)
@@ -42,7 +44,9 @@ async def create_artifact(payload: ArtifactCreate, db: AsyncSession = Depends(ge
     db.add(artifact)
     await db.flush()
     await db.refresh(artifact)
-    logger.info("artifact_created", artifact_id=str(artifact.id), type=artifact.artifact_type)
+    logger.info(
+        "artifact_created", artifact_id=str(artifact.id), type=artifact.artifact_type
+    )
     return artifact
 
 

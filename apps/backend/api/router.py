@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from fastapi import APIRouter
 
-from apps.backend.api.routes import health, leads, artifacts, scraper, autonomy, llm
+from apps.backend.api.routes import (artifacts, autonomy, health, leads, llm,
+                                     scraper)
 
 api_router = APIRouter()
 

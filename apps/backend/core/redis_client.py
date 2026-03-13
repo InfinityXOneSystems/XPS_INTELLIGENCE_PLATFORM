@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-import structlog
 import redis.asyncio as aioredis
+import structlog
 
 from apps.backend.core.config import settings
 

@@ -11,9 +11,13 @@ def validate_email(value: str) -> Optional[str]:
     if not value or not value.strip():
         return None
     try:
-        from email_validator import validate_email as _validate, EmailNotValidError
+        from email_validator import EmailNotValidError
+        from email_validator import validate_email as _validate
+
         result = _validate(value.strip(), check_deliverability=False)
         return result.normalized.lower()
+    except EmailNotValidError:
+        return None
     except Exception:
         return None
 
@@ -22,9 +26,12 @@ def validate_phone(value: str) -> Optional[str]:
     """Return normalized phone (E.164) or None if invalid."""
     try:
         import phonenumbers
+
         parsed = phonenumbers.parse(value, "US")
         if phonenumbers.is_valid_number(parsed):
-            return phonenumbers.format_number(parsed, phonenumbers.PhoneNumberFormat.E164)
+            return phonenumbers.format_number(
+                parsed, phonenumbers.PhoneNumberFormat.E164
+            )
     except Exception:
         pass
     return None
@@ -32,7 +39,7 @@ def validate_phone(value: str) -> Optional[str]:
 
 def validate_url(value: str) -> Optional[str]:
     """Return URL if valid, None otherwise."""
-    pattern = r'^https?://[^\s/$.?#].[^\s]*$'
+    pattern = r"^https?://[^\s/$.?#].[^\s]*$"
     if value and re.match(pattern, value.strip()):
         return value.strip()
     return None
@@ -40,4 +47,4 @@ def validate_url(value: str) -> Optional[str]:
 
 def validate_idempotency_key(key: str) -> bool:
     """Validate idempotency key format."""
-    return bool(key and len(key) <= 255 and re.match(r'^[a-zA-Z0-9:_\-\.]+$', key))
+    return bool(key and len(key) <= 255 and re.match(r"^[a-zA-Z0-9:_\-\.]+$", key))

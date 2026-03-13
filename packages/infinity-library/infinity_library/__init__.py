@@ -1,6 +1,7 @@
-from .validators import validate_email, validate_phone, validate_url, validate_idempotency_key
-from .logging import get_logger, configure_logging
-from .policy import check_capability, require_capability, CapabilityError
+from .logging import configure_logging, get_logger
+from .policy import CapabilityError, check_capability, require_capability
+from .validators import (validate_email, validate_idempotency_key,
+                         validate_phone, validate_url)
 
 __all__ = [
     "validate_email",

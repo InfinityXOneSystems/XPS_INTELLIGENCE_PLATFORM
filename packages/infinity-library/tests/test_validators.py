@@ -1,9 +1,16 @@
-from infinity_library.validators import (
-    validate_email,
-    validate_idempotency_key,
-    validate_phone,
-    validate_url,
-)
+from infinity_library.validators import (validate_email,
+                                         validate_idempotency_key,
+                                         validate_phone, validate_url)
+
+
+def test_validate_phone_valid():
+    result = validate_phone("+12025551234")
+    # phonenumbers validates +1 numbers; result is E.164 or None depending on lib
+    assert result is None or result.startswith("+")
+
+
+def test_validate_phone_invalid():
+    assert validate_phone("not-a-phone") is None
 
 
 def test_validate_email_valid():

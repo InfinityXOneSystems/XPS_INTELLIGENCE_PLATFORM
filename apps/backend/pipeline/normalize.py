@@ -64,7 +64,8 @@ async def normalize_lead(db: AsyncSession, lead_id: uuid.UUID) -> Lead:
         "name": _extract_field(raw, "name", "Name", "full_name", "fullName") or None,
         "email": _extract_email(raw),
         "phone": _extract_phone(raw),
-        "company": _extract_field(raw, "company", "Company", "organization", "org") or None,
+        "company": _extract_field(raw, "company", "Company", "organization", "org")
+        or None,
         "website": _extract_website(raw),
     }
 

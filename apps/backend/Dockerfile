@@ -34,8 +34,12 @@ COPY --from=builder /install /usr/local
 # Copy entire repo so monorepo imports work
 COPY . .
 
-# Install playwright browsers
-RUN python -m playwright install chromium --with-deps || true
+# Install playwright browsers only when INSTALL_PLAYWRIGHT=true
+# The backend itself does not run browsers; the playwright worker does.
+# Set INSTALL_PLAYWRIGHT=true in the playwright worker image, not here.
+RUN if [ "${INSTALL_PLAYWRIGHT:-false}" = "true" ]; then \
+        python -m playwright install chromium --with-deps; \
+    fi
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \

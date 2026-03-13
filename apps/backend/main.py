@@ -1,18 +1,18 @@
 from __future__ import annotations
 
-import structlog
 from contextlib import asynccontextmanager
 
+import structlog
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import ValidationError
 
+from apps.backend.api.router import api_router
 from apps.backend.core.config import settings
 from apps.backend.core.database import connect_db, disconnect_db
 from apps.backend.core.logging import configure_logging
 from apps.backend.core.redis_client import connect_redis, disconnect_redis
-from apps.backend.api.router import api_router
 
 configure_logging(level=settings.LOG_LEVEL)
 logger = structlog.get_logger(__name__)
@@ -54,7 +54,9 @@ async def validation_exception_handler(request: Request, exc: ValidationError):
 
 @app.exception_handler(Exception)
 async def general_exception_handler(request: Request, exc: Exception):
-    logger.error("unhandled_exception", path=request.url.path, error=str(exc), exc_info=True)
+    logger.error(
+        "unhandled_exception", path=request.url.path, error=str(exc), exc_info=True
+    )
     return JSONResponse(status_code=500, content={"detail": "Internal server error"})
 
 

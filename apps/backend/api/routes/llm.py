@@ -64,7 +64,11 @@ async def _call_groq(request: ChatRequest) -> ChatResponse:
 
 def _echo_response(request: ChatRequest) -> ChatResponse:
     last_user = next(
-        (m.get("content", "") for m in reversed(request.messages) if m.get("role") == "user"),
+        (
+            m.get("content", "")
+            for m in reversed(request.messages)
+            if m.get("role") == "user"
+        ),
         "",
     )
     return ChatResponse(

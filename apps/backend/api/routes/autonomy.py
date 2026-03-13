@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import uuid
 from typing import Any
 
@@ -8,11 +9,36 @@ from fastapi import APIRouter, BackgroundTasks, HTTPException
 from sqlalchemy import select
 
 from apps.backend.core.config import settings
+from apps.backend.core.redis_client import get_redis
 
 logger = structlog.get_logger(__name__)
 router = APIRouter(prefix="/autonomy", tags=["autonomy"])
 
-_cycle_registry: dict[str, dict[str, Any]] = {}
+_CYCLE_KEY_PREFIX = "xps:autonomy:cycle:"
+_CYCLE_TTL_SECONDS = 86400  # keep cycle state for 24 hours
+
+
+async def _get_cycle(cycle_id: str) -> dict[str, Any] | None:
+    """Retrieve cycle state from Redis."""
+    try:
+        redis = await get_redis()
+        val = await redis.get(f"{_CYCLE_KEY_PREFIX}{cycle_id}")
+        return json.loads(val) if val is not None else None
+    except Exception:
+        return None
+
+
+async def _set_cycle(cycle_id: str, state: dict[str, Any]) -> None:
+    """Persist cycle state to Redis."""
+    try:
+        redis = await get_redis()
+        await redis.set(
+            f"{_CYCLE_KEY_PREFIX}{cycle_id}",
+            json.dumps(state),
+            ex=_CYCLE_TTL_SECONDS,
+        )
+    except Exception as exc:
+        logger.warning("redis_cycle_persist_failed", cycle_id=cycle_id, error=str(exc))
 
 
 @router.get("/status")
@@ -29,7 +55,12 @@ async def trigger_cycle(background_tasks: BackgroundTasks):
         return {"status": "disabled", "reason": "AUTONOMY_ENABLED is false"}
 
     cycle_id = str(uuid.uuid4())
-    _cycle_registry[cycle_id] = {"status": "started", "cycle_id": cycle_id, "steps": []}
+    initial_state: dict[str, Any] = {
+        "status": "started",
+        "cycle_id": cycle_id,
+        "steps": [],
+    }
+    await _set_cycle(cycle_id, initial_state)
     background_tasks.add_task(_run_autonomy_cycle, cycle_id=cycle_id)
     logger.info("autonomy_cycle_started", cycle_id=cycle_id)
     return {"status": "started", "cycle_id": cycle_id}
@@ -37,9 +68,10 @@ async def trigger_cycle(background_tasks: BackgroundTasks):
 
 @router.get("/cycle/{cycle_id}/status")
 async def cycle_status(cycle_id: str):
-    if cycle_id not in _cycle_registry:
+    state = await _get_cycle(cycle_id)
+    if state is None:
         raise HTTPException(status_code=404, detail="Cycle not found")
-    return _cycle_registry[cycle_id]
+    return state
 
 
 async def _run_autonomy_cycle(cycle_id: str) -> None:
@@ -49,8 +81,8 @@ async def _run_autonomy_cycle(cycle_id: str) -> None:
     from apps.backend.pipeline.normalize import normalize_lead
     from apps.backend.pipeline.score import score_lead
 
-    state = _cycle_registry[cycle_id]
-    state["status"] = "running"
+    state: dict[str, Any] = {"status": "running", "cycle_id": cycle_id, "steps": []}
+    await _set_cycle(cycle_id, state)
 
     async with AsyncSessionLocal() as db:
         try:
@@ -62,6 +94,7 @@ async def _run_autonomy_cycle(cycle_id: str) -> None:
             pending_jobs = pending_jobs_result.scalars().all()
             for job in pending_jobs:
                 from apps.backend.api.routes.scraper import _execute_scrape_job
+
                 await _execute_scrape_job(str(job.id), job.target_url)
 
             # Step 2: normalize raw leads
@@ -74,7 +107,9 @@ async def _run_autonomy_cycle(cycle_id: str) -> None:
                 try:
                     await normalize_lead(db, lead.id)
                 except Exception as exc:
-                    logger.warning("normalize_failed", lead_id=str(lead.id), error=str(exc))
+                    logger.warning(
+                        "normalize_failed", lead_id=str(lead.id), error=str(exc)
+                    )
 
             # Step 3: score normalized leads
             state["steps"].append("score")
@@ -90,9 +125,11 @@ async def _run_autonomy_cycle(cycle_id: str) -> None:
 
             await db.commit()
             state["status"] = "done"
+            await _set_cycle(cycle_id, state)
             logger.info("autonomy_cycle_done", cycle_id=cycle_id)
 
         except Exception as exc:
             state["status"] = "failed"
             state["error"] = str(exc)
+            await _set_cycle(cycle_id, state)
             logger.error("autonomy_cycle_failed", cycle_id=cycle_id, error=str(exc))

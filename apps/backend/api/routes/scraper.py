@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import re
 import uuid
-from typing import Any
 
 import httpx
 import structlog
@@ -13,25 +12,37 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from apps.backend.core.config import settings
 from apps.backend.core.database import get_db
+from apps.backend.core.redis_client import get_redis
 from apps.backend.models.lead import Lead
 from apps.backend.models.scrape_job import ScrapeJob
-from apps.backend.schemas.scrape_job import ScrapeJobCreate, ScrapeJobRead, ScrapeJobStatus
+from apps.backend.schemas.scrape_job import (ScrapeJobCreate, ScrapeJobRead,
+                                             ScrapeJobStatus)
 
 logger = structlog.get_logger(__name__)
 router = APIRouter(prefix="/scraper", tags=["scraper"])
 
 EMAIL_RE = re.compile(r"[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}")
 
-_scraper_settings: dict[str, Any] = {
-    "autorun_enabled": settings.SCRAPER_AUTORUN_ENABLED,
-}
+# Redis key for persisted scraper settings
+_SETTINGS_KEY = "xps:scraper:settings:autorun_enabled"
 
 
 # ── Settings ──────────────────────────────────────────────────────────────────
 
+
 @router.get("/settings", tags=["scraper"])
 async def get_scraper_settings():
-    return {"autorun_enabled": _scraper_settings["autorun_enabled"]}
+    try:
+        redis = await get_redis()
+        val = await redis.get(_SETTINGS_KEY)
+        autorun = (
+            (val.decode() == "true")
+            if val is not None
+            else settings.SCRAPER_AUTORUN_ENABLED
+        )
+    except Exception:
+        autorun = settings.SCRAPER_AUTORUN_ENABLED
+    return {"autorun_enabled": autorun}
 
 
 @router.patch("/settings", tags=["scraper"])
@@ -39,13 +50,22 @@ async def update_scraper_settings(payload: dict):
     if "autorun_enabled" in payload:
         value = payload["autorun_enabled"]
         if not isinstance(value, bool):
-            raise HTTPException(status_code=422, detail="autorun_enabled must be a boolean")
-        _scraper_settings["autorun_enabled"] = value
+            raise HTTPException(
+                status_code=422, detail="autorun_enabled must be a boolean"
+            )
+        try:
+            redis = await get_redis()
+            await redis.set(_SETTINGS_KEY, "true" if value else "false")
+        except Exception:
+            logger.warning("redis_settings_persist_failed", autorun_enabled=value)
         logger.info("scraper_settings_updated", autorun_enabled=value)
-    return {"autorun_enabled": _scraper_settings["autorun_enabled"]}
+        return {"autorun_enabled": value}
+    # Return current value
+    return await get_scraper_settings()
 
 
 # ── Jobs ──────────────────────────────────────────────────────────────────────
+
 
 @router.get("/jobs", response_model=list[ScrapeJobRead])
 async def list_jobs(
@@ -54,7 +74,10 @@ async def list_jobs(
     db: AsyncSession = Depends(get_db),
 ):
     result = await db.execute(
-        select(ScrapeJob).order_by(ScrapeJob.created_at.desc()).offset(skip).limit(limit)
+        select(ScrapeJob)
+        .order_by(ScrapeJob.created_at.desc())
+        .offset(skip)
+        .limit(limit)
     )
     return result.scalars().all()
 
@@ -62,14 +85,19 @@ async def list_jobs(
 @router.post("/jobs", response_model=ScrapeJobRead, status_code=201)
 async def create_job(payload: ScrapeJobCreate, db: AsyncSession = Depends(get_db)):
     if not payload.target_url.startswith(("http://", "https://")):
-        raise HTTPException(status_code=422, detail="target_url must be a valid HTTP/HTTPS URL")
+        raise HTTPException(
+            status_code=422, detail="target_url must be a valid HTTP/HTTPS URL"
+        )
 
     idem_key = payload.idempotency_key or f"scrape_job:{payload.target_url}"
     existing = await db.execute(
         select(ScrapeJob).where(ScrapeJob.idempotency_key == idem_key)
     )
     if existing.scalar_one_or_none():
-        raise HTTPException(status_code=409, detail="Scrape job with this idempotency_key already exists")
+        raise HTTPException(
+            status_code=409,
+            detail="Scrape job with this idempotency_key already exists",
+        )
 
     job = ScrapeJob(
         target_url=payload.target_url,
@@ -108,12 +136,15 @@ async def run_job(
     await db.flush()
     await db.refresh(job)
 
-    background_tasks.add_task(_execute_scrape_job, job_id=str(job.id), url=job.target_url)
+    background_tasks.add_task(
+        _execute_scrape_job, job_id=str(job.id), url=job.target_url
+    )
     logger.info("scrape_job_triggered", job_id=str(job.id))
     return job
 
 
 # ── Background execution ──────────────────────────────────────────────────────
+
 
 async def _execute_scrape_job(job_id: str, url: str) -> None:
     from apps.backend.core.database import AsyncSessionLocal
@@ -139,7 +170,7 @@ async def _execute_scrape_job(job_id: str, url: str) -> None:
 
             # Also capture contact form fields as lead candidates
             forms = soup.find_all("form")
-            for form_idx, form in enumerate(forms):
+            for form in forms:
                 inputs = form.find_all("input")
                 form_data: dict[str, str] = {}
                 for inp in inputs:
@@ -147,7 +178,9 @@ async def _execute_scrape_job(job_id: str, url: str) -> None:
                     if name:
                         form_data[name] = inp.get("placeholder", inp.get("value", ""))
                 if form_data:
-                    leads_found.append({"form_fields": form_data, "source": "contact_form"})
+                    leads_found.append(
+                        {"form_fields": form_data, "source": "contact_form"}
+                    )
 
             # Persist lead records with idempotency
             created_count = 0

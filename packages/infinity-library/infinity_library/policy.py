@@ -7,6 +7,7 @@ logger = structlog.get_logger(__name__)
 
 class CapabilityError(Exception):
     """Raised when a required capability is not granted."""
+
     pass
 
 

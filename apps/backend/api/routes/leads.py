@@ -38,7 +38,9 @@ async def create_lead(payload: LeadCreate, db: AsyncSession = Depends(get_db)):
         select(Lead).where(Lead.idempotency_key == payload.idempotency_key)
     )
     if existing.scalar_one_or_none():
-        raise HTTPException(status_code=409, detail="Lead with this idempotency_key already exists")
+        raise HTTPException(
+            status_code=409, detail="Lead with this idempotency_key already exists"
+        )
 
     lead = Lead(
         source_url=payload.source_url,

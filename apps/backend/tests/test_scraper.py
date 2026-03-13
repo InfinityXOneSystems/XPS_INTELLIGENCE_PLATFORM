@@ -5,8 +5,9 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 import pytest_asyncio
-from httpx import AsyncClient, ASGITransport
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from httpx import ASGITransport, AsyncClient
+from sqlalchemy.ext.asyncio import (AsyncSession, async_sessionmaker,
+                                    create_async_engine)
 
 from apps.backend.core.database import Base, get_db
 from apps.backend.main import app
@@ -44,7 +45,9 @@ async def client(db_session: AsyncSession):
         yield db_session
 
     app.dependency_overrides[get_db] = override_get_db
-    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as ac:
         yield ac
     app.dependency_overrides.clear()
 
@@ -95,6 +98,7 @@ async def test_list_scrape_jobs(client: AsyncClient):
 @pytest.mark.asyncio
 async def test_get_scrape_job_not_found(client: AsyncClient):
     import uuid
+
     resp = await client.get(f"/api/v1/scraper/jobs/{uuid.uuid4()}")
     assert resp.status_code == 404
 
@@ -142,10 +146,14 @@ async def test_scraper_settings(client: AsyncClient):
 
 @pytest.mark.asyncio
 async def test_update_scraper_settings(client: AsyncClient):
-    resp = await client.patch("/api/v1/scraper/settings", json={"autorun_enabled": True})
+    resp = await client.patch(
+        "/api/v1/scraper/settings", json={"autorun_enabled": True}
+    )
     assert resp.status_code == 200
     assert resp.json()["autorun_enabled"] is True
 
-    resp2 = await client.patch("/api/v1/scraper/settings", json={"autorun_enabled": False})
+    resp2 = await client.patch(
+        "/api/v1/scraper/settings", json={"autorun_enabled": False}
+    )
     assert resp2.status_code == 200
     assert resp2.json()["autorun_enabled"] is False

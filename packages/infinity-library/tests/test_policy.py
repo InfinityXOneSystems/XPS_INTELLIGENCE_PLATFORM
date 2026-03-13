@@ -1,15 +1,14 @@
 import pytest
-
-from infinity_library.policy import (
-    CapabilityError,
-    check_capability,
-    require_capability,
-    validate_capability_set,
-)
+from infinity_library.policy import (CapabilityError, check_capability,
+                                     require_capability,
+                                     validate_capability_set)
 
 
 def test_check_capability_granted():
-    assert check_capability("network_restricted", {"network_restricted", "db_read"}) is True
+    assert (
+        check_capability("network_restricted", {"network_restricted", "db_read"})
+        is True
+    )
 
 
 def test_check_capability_not_granted():

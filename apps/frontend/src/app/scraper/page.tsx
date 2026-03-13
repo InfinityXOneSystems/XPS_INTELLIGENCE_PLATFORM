@@ -1,4 +1,5 @@
 'use client';
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
 interface ScraperSettings {
@@ -104,7 +105,7 @@ export default function ScraperPage() {
               Configure and trigger web scraping jobs
             </p>
           </div>
-          <a href="/" style={{ fontSize: 12, color: '#6366f1', textDecoration: 'none' }}>← Dashboard</a>
+          <Link href="/" style={{ fontSize: 12, color: '#6366f1', textDecoration: 'none' }}>← Dashboard</Link>
         </div>
 
         {loadError && (

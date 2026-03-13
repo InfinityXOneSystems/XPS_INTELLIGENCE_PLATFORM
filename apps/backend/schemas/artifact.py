@@ -7,8 +7,15 @@ from typing import Any, Literal, Optional
 from pydantic import BaseModel, ConfigDict, Field
 
 ArtifactTypeStr = Literal[
-    "image", "video", "music", "template", "chart",
-    "lead", "web_browse", "system", "text"
+    "image",
+    "video",
+    "music",
+    "template",
+    "chart",
+    "lead",
+    "web_browse",
+    "system",
+    "text",
 ]
 
 
