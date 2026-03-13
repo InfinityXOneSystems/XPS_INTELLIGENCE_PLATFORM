@@ -6,7 +6,7 @@ Resolves #<!-- issue number -->
 
 ### Changes Made
 <!-- List the specific changes made in this PR -->
-- 
+-
 
 ### Type of Change
 <!-- Mark the applicable option with [x] -->

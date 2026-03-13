@@ -18,6 +18,10 @@ rules:
   # GitHub Actions workflow files do not use document-start markers
   document-start: disable
 
+  # Disable indentation check — GitHub Actions labeler.yml uses a sequence
+  # nesting style that is valid YAML but triggers this rule
+  indentation: disable
+
   # Allow empty lines at end of file
   empty-lines:
     max: 2

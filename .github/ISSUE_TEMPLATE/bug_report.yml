@@ -87,7 +87,7 @@ body:
       placeholder: |
         - Railway environment: staging / production
         - Browser (if UI): Chrome 120 / Firefox 121
-        - Workflow run ID (if CI): 
+        - Workflow run ID (if CI):
 
   - type: textarea
     id: additional
