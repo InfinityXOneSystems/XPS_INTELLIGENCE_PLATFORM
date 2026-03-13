@@ -80,10 +80,16 @@ client, not an execution authority.
 
 ## Scraper System
 
-- **Universal Scraper:** supports both manual trigger and scheduled 2-hour cycle
-- **Compliance:** allowlist-based domain targeting; rate limiting enforced
+- **Shadow Scraper:** primary ingestion method; headless Playwright browser with
+  anti-bot evasion, random user-agent rotation, and configurable delays.
+- **Posture:** full public-web access — no domain allowlist. Domain denylist
+  enforced via `packages/agents/scraper_config.json`.
+- **Safety Rails:** robots.txt respect toggle, max-request budget per run,
+  concurrency cap, per-domain delay floor, compliance mode (heightened limits).
 - **Pipeline:** scrape → ingest → normalize → score → store
 - **Toggle:** `SCRAPER_ENABLED` environment variable (Railway + GitHub Actions)
+- **Budget:** `SCRAPER_MAX_REQUESTS_PER_RUN` (default 200) per run cycle;
+  `SCRAPER_MAX_CONCURRENCY` (default 3) parallel pages.
 - **Settings UI:** concurrency, rate limits, source selection, compliance flags
 
 ## Lead Pipeline
@@ -104,7 +110,7 @@ Raw Scrape Output
 | Frontend bundle | No secrets; no server-side logic |
 | API surface | CORS allowlist; JWT/token auth |
 | Worker execution | Container-isolated; read-only mounts where possible |
-| Sandbox runner | Constrained network (allowlist); per-task workspace |
+| Sandbox runner | Domain denylist enforced; per-task workspace; request budget capped |
 | Database | Private Railway network; no public exposure |
 
 ## CI/CD Pipeline
@@ -134,6 +140,11 @@ Push / PR
 | `GROQ_API_KEY` | Railway (backend) | Groq LLM provider |
 | `LLM_PROVIDER` | Railway (backend) | Primary LLM provider name |
 | `SCRAPER_ENABLED` | Railway (backend) | Enable/disable scraper schedule |
+| `SCRAPER_RESPECT_ROBOTS_TXT` | Railway (backend) | Respect robots.txt (default: true) |
+| `SCRAPER_MAX_REQUESTS_PER_RUN` | Railway (backend) | Request budget per cycle (default: 200) |
+| `SCRAPER_MAX_CONCURRENCY` | Railway (backend) | Max parallel browser pages (default: 3) |
+| `SCRAPER_MIN_DELAY_MS` | Railway (backend) | Min ms between same-domain requests (default: 1000) |
+| `SCRAPER_COMPLIANCE_MODE` | Railway (backend) | Heightened rate-limit enforcement (default: true) |
 | `AUTONOMY_ENABLED` | Railway + Actions | Master autonomy toggle |
 | `VITE_API_URL` | Railway (frontend) | Backend API base URL |
 | `GITHUB_TOKEN` | Actions (auto) | GitHub API access (read-only in audit) |

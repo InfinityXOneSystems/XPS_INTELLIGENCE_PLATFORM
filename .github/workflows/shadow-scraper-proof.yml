@@ -1,0 +1,175 @@
+name: Shadow Scraper Proof
+
+# Demonstrates that the Shadow Scraper (headless Playwright browser) can
+# successfully retrieve pages from the deterministic proof-target set defined
+# in packages/agents/scraper_config.json → proof_targets.
+#
+# No domain allowlist is required.  All safety rails are enforced:
+#   - robots.txt respect (default: true)
+#   - domain denylist (packages/agents/scraper_config.json)
+#   - request budget (SCRAPER_MAX_REQUESTS_PER_RUN)
+#   - concurrency cap (SCRAPER_MAX_CONCURRENCY)
+#   - compliance mode (SCRAPER_COMPLIANCE_MODE)
+#
+# Proof artifacts are uploaded to GitHub Actions and stored under
+# TEST_EVIDENCE/ for audit purposes.
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  schedule:
+    # Runs every 2 hours as part of the autonomy cycle.
+    - cron: "0 */2 * * *"
+  workflow_dispatch:
+    inputs:
+      target_urls:
+        description: "Newline-separated URLs to scrape (leave blank for default proof targets)"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+concurrency:
+  group: shadow-scraper-proof-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  shadow-scraper-proof:
+    name: Shadow Scraper Proof Run
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    env:
+      SCRAPER_RESPECT_ROBOTS_TXT: "true"
+      SCRAPER_MAX_REQUESTS_PER_RUN: "20"
+      SCRAPER_MAX_CONCURRENCY: "2"
+      SCRAPER_MIN_DELAY_MS: "1500"
+      SCRAPER_COMPLIANCE_MODE: "true"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Playwright and dependencies
+        run: |
+          pip install playwright
+          playwright install --with-deps chromium
+
+      - name: Resolve proof-target URLs
+        id: targets
+        run: |
+          CUSTOM="${{ github.event.inputs.target_urls }}"
+          if [[ -n "$CUSTOM" ]]; then
+            # Write custom targets from workflow_dispatch input.
+            echo "$CUSTOM" | tr ',' '\n' | sed '/^$/d' > /tmp/proof_targets.txt
+          else
+            # Use the deterministic set from scraper_config.json.
+            python3 - <<'PYEOF'
+          import json, pathlib, sys
+
+          cfg_path = pathlib.Path("packages/agents/scraper_config.json")
+          if not cfg_path.exists():
+              print("⚠️  scraper_config.json not found — using fallback targets.")
+              targets = ["https://example.com", "https://httpbin.org/get"]
+          else:
+              cfg = json.loads(cfg_path.read_text())
+              targets = cfg.get("proof_targets", ["https://example.com"])
+
+          out = pathlib.Path("/tmp/proof_targets.txt")
+          out.write_text("\n".join(targets) + "\n")
+          print(f"Proof targets ({len(targets)}):")
+          for t in targets:
+              print(f"  {t}")
+          PYEOF
+          fi
+          echo "Targets written to /tmp/proof_targets.txt:"
+          cat /tmp/proof_targets.txt
+
+      - name: Run Shadow Scraper proof
+        id: scrape
+        run: |
+          mkdir -p TEST_EVIDENCE
+
+          URLS=$(cat /tmp/proof_targets.txt | tr '\n' ' ')
+          echo "Scraping: $URLS"
+
+          python3 packages/agents/shadow_scraper.py $URLS \
+            | tee TEST_EVIDENCE/shadow_scraper_proof_run.json
+
+          # Write a human-readable summary.
+          python3 - <<'PYEOF'
+          import json, pathlib, datetime
+
+          data = json.loads(pathlib.Path("TEST_EVIDENCE/shadow_scraper_proof_run.json").read_text())
+          successes = [r for r in data if r.get("success")]
+          failures  = [r for r in data if not r.get("success")]
+
+          lines = [
+              f"# Shadow Scraper Proof — {datetime.datetime.utcnow().isoformat()}Z",
+              f"",
+              f"**Run by:** GitHub Actions  ",
+              f"**Commit:** ${{ github.sha }}  ",
+              f"**Workflow:** shadow-scraper-proof  ",
+              f"",
+              f"## Results",
+              f"",
+              f"| URL | Status | Success |",
+              f"|---|---|---|",
+          ]
+          for r in data:
+              lines.append(f"| {r['url']} | {r['status_code']} | {'✅' if r['success'] else '❌'} |")
+
+          lines += [
+              f"",
+              f"**Successes:** {len(successes)}/{len(data)}  ",
+              f"**Failures:** {len(failures)}/{len(data)}  ",
+          ]
+          if failures:
+              lines.append(f"")
+              lines.append(f"## Failures")
+              for r in failures:
+                  lines.append(f"- `{r['url']}`: {r.get('error','unknown')}")
+
+          pathlib.Path("TEST_EVIDENCE/shadow_scraper_proof_summary.md").write_text("\n".join(lines))
+          print("Summary written.")
+          PYEOF
+
+      - name: Assert at least one successful scrape
+        run: |
+          python3 - <<'PYEOF'
+          import json, sys, pathlib
+
+          data = json.loads(
+              pathlib.Path("TEST_EVIDENCE/shadow_scraper_proof_run.json").read_text()
+          )
+          successes = [r for r in data if r.get("success")]
+          if not successes:
+              print("❌ Zero successful scrapes — failing the proof job.")
+              sys.exit(1)
+          print(f"✅ {len(successes)}/{len(data)} URLs scraped successfully.")
+          PYEOF
+
+      - name: Upload proof artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: shadow-scraper-proof-${{ github.run_id }}
+          path: TEST_EVIDENCE/
+          retention-days: 30
+
+      - name: Write job summary
+        if: always()
+        run: |
+          if [[ -f "TEST_EVIDENCE/shadow_scraper_proof_summary.md" ]]; then
+            cat TEST_EVIDENCE/shadow_scraper_proof_summary.md >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "No proof summary generated." >> "$GITHUB_STEP_SUMMARY"
+          fi
