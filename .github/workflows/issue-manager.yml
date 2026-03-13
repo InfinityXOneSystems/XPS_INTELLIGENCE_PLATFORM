@@ -1,0 +1,177 @@
+name: Issue Manager
+
+on:
+  issues:
+    types: [opened, reopened]
+  schedule:
+    # Daily triage at 08:00 UTC
+    - cron: "0 8 * * *"
+  workflow_dispatch:
+
+jobs:
+  # ────────────────────────────────────────────────────────
+  # Triage new issues
+  # ────────────────────────────────────────────────────────
+  triage-new-issue:
+    name: Triage New Issue
+    runs-on: ubuntu-latest
+    if: github.event_name == 'issues'
+    permissions:
+      issues: write
+
+    steps:
+      - name: Triage and acknowledge
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const title = issue.title.toLowerCase();
+            const labels = issue.labels.map(l => l.name);
+
+            // Auto-assign to project based on labels
+            const priorityKeywords = {
+              'critical': '🔴 Critical',
+              'security': '🔴 Critical',
+              'crash': '🔴 Critical',
+              'data loss': '🔴 Critical',
+              'broken': '🟠 High',
+              'error': '🟠 High',
+              'phase5': '🟡 Phase 5',
+              'autonomous': '🟡 Phase 5',
+            };
+
+            let priority = '🟢 Normal';
+            for (const [keyword, prio] of Object.entries(priorityKeywords)) {
+              if (title.includes(keyword) || labels.some(l => l.includes(keyword))) {
+                priority = prio;
+                break;
+              }
+            }
+
+            // Post acknowledgment comment
+            const comment = [
+              `## 🤖 Autonomous Issue Manager`,
+              ``,
+              `Thank you for submitting this issue. It has been automatically triaged.`,
+              ``,
+              `| Field | Value |`,
+              `|-------|-------|`,
+              `| Priority | ${priority} |`,
+              `| Status | Needs Triage |`,
+              `| Assigned | Autonomous Pipeline |`,
+              ``,
+              `### Next Steps`,
+              `- The issue will be reviewed in the next triage cycle`,
+              `- If critical, it will be escalated immediately`,
+              `- Track progress in [GitHub Projects](../../projects)`,
+              ``,
+              `_Processed by the XPS Intelligence Platform Autonomous Issue Manager_`,
+            ].join('\n');
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.number,
+              body: comment,
+            });
+
+            // Add needs-triage label if not already present
+            if (!labels.includes('needs-triage')) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                labels: ['needs-triage'],
+              }).catch(() => {});
+            }
+
+  # ────────────────────────────────────────────────────────
+  # Daily stale issue management
+  # ────────────────────────────────────────────────────────
+  stale-management:
+    name: Stale Issue Management
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    permissions:
+      issues: write
+      pull-requests: write
+
+    steps:
+      - name: Mark stale issues
+        uses: actions/stale@v9
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          stale-issue-message: |
+            👋 This issue has been inactive for 30 days.
+            It will be automatically closed in 7 days unless there is new activity.
+            If this is still relevant, please add a comment or the `keep-open` label.
+          stale-pr-message: |
+            👋 This PR has been inactive for 14 days.
+            It will be automatically closed in 7 days unless there is new activity.
+            If this is still relevant, please add a comment, push new commits, or add the `keep-open` label.
+          close-issue-message: |
+            🔒 This issue has been automatically closed due to inactivity.
+            Reopen it if it is still relevant.
+          close-pr-message: |
+            🔒 This PR has been automatically closed due to inactivity.
+            Reopen it if it is still relevant.
+          days-before-stale: 30
+          days-before-close: 7
+          days-before-pr-stale: 14
+          days-before-pr-close: 7
+          stale-issue-label: stale
+          stale-pr-label: stale
+          exempt-issue-labels: "pinned,keep-open,security,phase-5,critical"
+          exempt-pr-labels: "keep-open,security,do-not-close"
+          operations-per-run: 50
+
+  # ────────────────────────────────────────────────────────
+  # Daily TODO.md sync from open issues
+  # ────────────────────────────────────────────────────────
+  sync-todo:
+    name: Sync TODO from Issues
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    permissions:
+      issues: read
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Sync open issues to TODO.md
+        id: sync-todo
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'todo',
+              per_page: 100,
+            });
+
+            if (issues.length === 0) {
+              console.log('No issues with todo label found');
+              return;
+            }
+
+            const todoLines = issues.map(issue =>
+              `- [ ] #${issue.number} — ${issue.title} (@${issue.user.login})`
+            ).join('\n');
+
+            console.log(`Found ${issues.length} todo issues`);
+            core.setOutput('todo_items', todoLines);
+            core.setOutput('has_items', 'true');
+
+      - name: Commit TODO update
+        if: steps.sync-todo.outputs.has_items == 'true'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "XPS Autonomous Pipeline"
+          git diff --quiet TODO.md || (git add TODO.md && git commit -m "docs: sync TODO from GitHub Issues [skip ci]")
+          git push
+        continue-on-error: true

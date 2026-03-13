@@ -1,0 +1,49 @@
+# Labeler configuration
+# See: https://github.com/actions/labeler
+
+backend:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'apps/backend/**'
+
+frontend:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'apps/frontend/**'
+
+agents:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'packages/agents/**'
+
+shared:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'packages/shared/**'
+
+ci/cd:
+  - changed-files:
+    - any-glob-to-any-file:
+      - '.github/workflows/**'
+      - '.github/dependabot.yml'
+
+documentation:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'docs/**'
+      - '*.md'
+      - '.github/*.md'
+
+testing:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'tests/**'
+      - '**/*.test.ts'
+      - '**/*.test.tsx'
+      - '**/*.spec.ts'
+      - '**/test_*.py'
+
+scripts:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'scripts/**'

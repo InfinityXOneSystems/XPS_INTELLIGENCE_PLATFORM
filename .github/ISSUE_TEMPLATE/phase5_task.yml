@@ -1,0 +1,98 @@
+name: 🚀 Phase 5 Autonomous Task
+description: Define a task for the Phase 5 autonomous operation system
+title: "phase5: [short description]"
+labels: ["phase-5", "autonomous", "needs-triage"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Phase 5 Autonomous Task
+        Define a task to be executed autonomously by the XPS Intelligence Platform.
+        These tasks are picked up by the Infinity Orchestrator and executed without human intervention.
+
+  - type: dropdown
+    id: task_type
+    attributes:
+      label: Task Type
+      description: What type of autonomous task is this?
+      options:
+        - Code Generation
+        - Refactor / Optimization
+        - Bug Fix (autonomous)
+        - Agent Update
+        - Security Hardening
+        - Documentation Update
+        - Dependency Update
+        - Data Pipeline
+        - Deployment
+        - Monitoring / Alerting
+        - Memory System
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      options:
+        - Critical (immediate execution)
+        - High (next sprint)
+        - Medium (current sprint)
+        - Low (backlog)
+    validations:
+      required: true
+
+  - type: textarea
+    id: objective
+    attributes:
+      label: Objective
+      description: Clearly define what the autonomous system must accomplish.
+    validations:
+      required: true
+
+  - type: textarea
+    id: success_criteria
+    attributes:
+      label: Success Criteria
+      description: How will we know the task was completed successfully?
+      placeholder: |
+        - [ ] Criterion 1
+        - [ ] Criterion 2
+    validations:
+      required: true
+
+  - type: textarea
+    id: constraints
+    attributes:
+      label: Constraints & Rules
+      description: What must the autonomous system NOT do or be careful about?
+      placeholder: |
+        - Do NOT break existing frontend UI
+        - Do NOT use fake/sample data
+        - Must pass all CI checks before merging
+
+  - type: dropdown
+    id: human_gate
+    attributes:
+      label: Requires Human Approval?
+      description: Does this task require human approval before execution?
+      options:
+        - "No — fully autonomous"
+        - "Yes — human must approve PR before merge"
+        - "Yes — human must trigger workflow manually"
+    validations:
+      required: true
+
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies
+      description: List any GitHub Issues, PRs, or external systems this task depends on.
+
+  - type: textarea
+    id: agent
+    attributes:
+      label: Assigned Agent
+      description: Which agent or workflow should handle this task? (leave blank for auto-assignment)

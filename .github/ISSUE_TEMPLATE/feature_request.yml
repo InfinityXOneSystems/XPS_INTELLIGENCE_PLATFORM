@@ -1,0 +1,90 @@
+name: ✨ Feature Request
+description: Propose a new feature or enhancement
+title: "feat: [short description]"
+labels: ["enhancement", "needs-triage"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Feature Request
+        Describe the feature you'd like to see added to the XPS Intelligence Platform.
+
+  - type: dropdown
+    id: phase
+    attributes:
+      label: Target Phase
+      description: Which phase does this feature belong to?
+      options:
+        - Foundation
+        - Phase 1 (Backend/Frontend consolidation)
+        - Phase 2 (Build/Infra)
+        - Phase 3 (Admin control plane)
+        - Phase 4 (Agents/ConstructIQ)
+        - Phase 5 (Full autonomous operation)
+        - Cross-phase
+    validations:
+      required: true
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      description: Which component does this feature affect?
+      options:
+        - Backend API
+        - Frontend UI
+        - Shadow Scraper
+        - New Agent
+        - Existing Agent
+        - CI/CD Workflow
+        - Railway Deployment
+        - Database / Postgres
+        - Memory System
+        - Infinity Orchestrator
+        - Documentation
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem Statement
+      description: What problem does this feature solve?
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: Describe your proposed solution clearly.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: What other approaches did you consider?
+
+  - type: checkboxes
+    id: requirements
+    attributes:
+      label: Requirements Checklist
+      options:
+        - label: This feature does NOT use fake/sample lead data
+          required: true
+        - label: This feature does NOT introduce new security vulnerabilities
+          required: true
+        - label: This feature follows the architecture in `.github/ARCHITECTURE.md`
+          required: true
+        - label: This feature will include tests (Playwright for UI, pytest/vitest for logic)
+          required: true
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Mockups, diagrams, or any other relevant context.

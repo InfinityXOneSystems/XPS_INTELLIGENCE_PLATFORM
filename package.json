@@ -1,0 +1,14 @@
+{
+  "name": "xps-intelligence-platform",
+  "version": "0.1.0",
+  "description": "XPS Intelligence Platform — Autonomous Monorepo",
+  "private": true,
+  "scripts": {
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.42.0"
+  }
+}
