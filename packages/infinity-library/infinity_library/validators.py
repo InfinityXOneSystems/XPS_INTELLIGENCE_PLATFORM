@@ -8,10 +8,14 @@ logger = structlog.get_logger(__name__)
 
 def validate_email(value: str) -> Optional[str]:
     """Return normalized email or None if invalid."""
-    pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-    if value and re.match(pattern, value.strip()):
-        return value.strip().lower()
-    return None
+    if not value or not value.strip():
+        return None
+    try:
+        from email_validator import validate_email as _validate, EmailNotValidError
+        result = _validate(value.strip(), check_deliverability=False)
+        return result.normalized.lower()
+    except Exception:
+        return None
 
 
 def validate_phone(value: str) -> Optional[str]:

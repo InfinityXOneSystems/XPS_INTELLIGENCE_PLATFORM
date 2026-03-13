@@ -27,9 +27,9 @@ def _extract_field(data: dict[str, Any], *keys: str) -> str:
 def _extract_email(data: dict[str, Any]) -> str | None:
     direct = _extract_field(data, "email", "Email", "EMAIL")
     if direct:
-        m = EMAIL_RE.fullmatch(direct)
+        m = EMAIL_RE.fullmatch(direct.strip())
         if m:
-            return direct.lower()
+            return direct.strip().lower()
     raw_str = str(data)
     found = EMAIL_RE.search(raw_str)
     return found.group(0).lower() if found else None

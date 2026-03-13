@@ -35,7 +35,7 @@ async def trigger_cycle(background_tasks: BackgroundTasks):
     return {"status": "started", "cycle_id": cycle_id}
 
 
-@router.post("/cycle/{cycle_id}/status")
+@router.get("/cycle/{cycle_id}/status")
 async def cycle_status(cycle_id: str):
     if cycle_id not in _cycle_registry:
         raise HTTPException(status_code=404, detail="Cycle not found")
