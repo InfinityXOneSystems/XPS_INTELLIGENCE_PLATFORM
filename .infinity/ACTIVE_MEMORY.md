@@ -42,6 +42,8 @@ Source repos to audit:
 | No VITE_ secrets | Frontend bundle is public; secrets are backend-only |
 | Squash merge only | Clean linear history; clear attributions |
 | Railway for backend/workers | Specified by operator; no deviation |
+| Shadow Scraper ignores robots.txt by default | Operator directive (2026-03-13) |
+| Shadow Scraper max parallelism with budget caps | Operator directive (2026-03-13) |
 
 ## Operator Preferences
 
@@ -49,6 +51,11 @@ Source repos to audit:
 - No aesthetic changes to existing frontend. Additive UI only.
 - 2-hour scraper cycle when `SCRAPER_ENABLED=true`.
 - `AUTONOMY_ENABLED=false` is the emergency stop for all agents.
+- **Shadow Scraper compliance (2026-03-13):** robots.txt IGNORED by default.
+  Set `SCRAPER_RESPECT_ROBOTS_TXT=true` to honour robots.txt when needed.
+- **Shadow Scraper parallelism (2026-03-13):** maximum safe inhalation.
+  Default caps: MAX_CONCURRENCY=20, DOMAIN_CONCURRENCY=5,
+  MAX_REQUESTS=10000, MAX_PAGES=5000, MAX_RUNTIME_SECONDS=3600.
 
 ## TAP Status
 

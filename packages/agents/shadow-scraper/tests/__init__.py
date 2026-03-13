@@ -1,0 +1,1 @@
+# Shadow Scraper tests package
