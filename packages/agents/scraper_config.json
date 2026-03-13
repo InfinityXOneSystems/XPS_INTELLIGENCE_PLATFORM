@@ -1,0 +1,26 @@
+{
+  "_comment": "Shadow Scraper safety-rail configuration. Edit via PR — changes take effect after merge to main.",
+  "denylist": [
+    "localhost",
+    "127.0.0.1",
+    "0.0.0.0",
+    "*.internal",
+    "*.local",
+    "169.254.169.254",
+    "metadata.google.internal",
+    "instance-data.ec2.internal"
+  ],
+  "defaults": {
+    "respect_robots_txt": true,
+    "max_requests_per_run": 200,
+    "max_concurrency": 3,
+    "min_delay_ms": 1000,
+    "compliance_mode": true
+  },
+  "proof_targets": [
+    "https://example.com",
+    "https://httpbin.org/get",
+    "https://quotes.toscrape.com",
+    "https://books.toscrape.com"
+  ]
+}

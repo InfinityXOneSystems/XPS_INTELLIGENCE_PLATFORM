@@ -63,6 +63,44 @@ Every claimed capability must have **all three**:
 | Performance claim | Benchmark test with baseline + CI artifact |
 | Deployment claim | Successful Railway deploy log + health check result |
 
+## Scraping Policy
+
+### Posture
+
+The platform operates with **full public-web access** — no domain allowlist is
+required. The Shadow Scraper (headless Playwright browser) is the primary
+ingestion method. Operators take responsibility for compliance with applicable
+law and the Terms of Service of targeted domains.
+
+### Mandatory Safety Rails
+
+All scraper runs — manual, scheduled, or autonomous — must enforce:
+
+| Rail | Environment Variable | Default | Effect |
+|---|---|---|---|
+| robots.txt respect | `SCRAPER_RESPECT_ROBOTS_TXT` | `true` | Skip URLs disallowed by robots.txt |
+| Domain denylist | Config: `packages/agents/scraper_config.json` | See file | Hard-block listed domains |
+| Request budget | `SCRAPER_MAX_REQUESTS_PER_RUN` | `200` | Abort run after N HTTP requests |
+| Concurrency cap | `SCRAPER_MAX_CONCURRENCY` | `3` | Max parallel browser pages |
+| Compliance mode | `SCRAPER_COMPLIANCE_MODE` | `true` | Doubled delay floors, stricter rate limiting |
+| Per-domain delay | `SCRAPER_MIN_DELAY_MS` | `1000` | Minimum ms between requests to same domain |
+
+Violating any safety rail is a **P0 blocker** that must be fixed before merge.
+
+### Idempotency
+
+The 2-hour autonomy cycle must be safe to re-run. Duplicate URL ingestion is
+prevented by content-hash deduplication in the ingest worker. Scraper runs that
+exceed the request budget are stopped cleanly (partial results committed).
+
+### Operator Responsibility
+
+- Operators may add domains to the denylist at any time by editing
+  `packages/agents/scraper_config.json` and merging via PR.
+- Operators may disable the scraper entirely via `SCRAPER_ENABLED=false`.
+- Operators are responsible for reviewing the scraper audit log (stored in
+  `FORENSIC_AUDIT/`) and responding to any Terms of Service notices.
+
 ## Gate Definitions
 
 ### P0 — Critical (Blocks Merge)
