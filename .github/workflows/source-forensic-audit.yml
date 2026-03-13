@@ -1,0 +1,156 @@
+# Source-Repository Forensic Audit Workflow
+#
+# For each repository listed in _OPS/scripts/source_repos_manifest.json this
+# workflow:
+#   1. Resolves the commit SHA to use (manifest pin or latest default-branch HEAD).
+#   2. Clones the repository at exactly that SHA (shallow, credential-safe).
+#   3. Analyses the working tree (file inventory, key files, tech stack, etc.).
+#   4. Produces two reports per repository:
+#        FORENSIC_AUDIT/sources/<slug>/forensic_report.json  (machine-readable)
+#        FORENSIC_AUDIT/sources/<slug>/forensic_report.md   (human-readable)
+#   5. Produces a combined index:
+#        FORENSIC_AUDIT/sources_index.json
+#        FORENSIC_AUDIT/sources_index.md
+#   6. Commits all reports back to the triggering branch (or main).
+#   7. Uploads reports as a 90-day workflow artifact.
+#
+# SECURITY:
+#   - GITHUB_TOKEN / SOURCE_AUDIT_PAT is passed to git ONLY via GIT_ASKPASS.
+#     It is never written to disk (beyond the temp askpass script, which is
+#     deleted immediately after the clone), logged, or included in any report.
+#   - File contents in reports are limited to well-known plain-text project
+#     files (see KEY_FILES in the script).
+#   - Secret values are never fetched or printed.
+#
+# Triggers:
+#   - Schedule: every Monday at 03:00 UTC (offset from repo-self-audit Sunday)
+#   - Manual:   workflow_dispatch (run anytime from the Actions tab)
+#   - Push to main when the manifest or this workflow file changes
+
+name: source-forensic-audit
+
+on:
+  schedule:
+    # Every Monday at 03:00 UTC
+    - cron: "0 3 * * 1"
+  workflow_dispatch:
+    inputs:
+      output_dir:
+        description: "Output directory for reports (default: FORENSIC_AUDIT)"
+        required: false
+        default: "FORENSIC_AUDIT"
+      manifest_path:
+        description: "Path to source repos manifest JSON"
+        required: false
+        default: "_OPS/scripts/source_repos_manifest.json"
+  push:
+    branches:
+      - main
+    paths:
+      - "_OPS/scripts/source_repos_manifest.json"
+      - "_OPS/scripts/source_repo_forensic_audit.py"
+      - ".github/workflows/source-forensic-audit.yml"
+
+# Minimal permissions — contents:write to commit reports back, pull-requests:read
+# for any future PR cross-referencing.
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  forensic-audit:
+    name: Run Source-Repo Forensic Audit
+    runs-on: ubuntu-latest
+
+    # Allow the job to be skipped when autonomy is disabled
+    if: vars.AUTONOMY_ENABLED != 'false'
+
+    steps:
+      # -----------------------------------------------------------------------
+      # 1. Checkout platform repo
+      # -----------------------------------------------------------------------
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          # Full history so the commit step can push cleanly
+          fetch-depth: 0
+          # Use a PAT when available (enables access to private source repos).
+          # Falls back to GITHUB_TOKEN for public repos.
+          token: ${{ secrets.SOURCE_AUDIT_PAT || secrets.GITHUB_TOKEN }}
+
+      # -----------------------------------------------------------------------
+      # 2. Set up Python (stdlib only — no pip install required)
+      # -----------------------------------------------------------------------
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # -----------------------------------------------------------------------
+      # 3. Configure git (suppress detached HEAD advice; credentials are
+      #    injected by the script via GIT_ASKPASS — not via URL rewriting)
+      # -----------------------------------------------------------------------
+      - name: Configure git
+        run: |
+          git config --global advice.detachedHead false
+
+      # -----------------------------------------------------------------------
+      # 4. Run the forensic audit script
+      # -----------------------------------------------------------------------
+      - name: Run source-repo forensic audit
+        env:
+          GITHUB_TOKEN: ${{ secrets.SOURCE_AUDIT_PAT || secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          AUDIT_OUTPUT_DIR: ${{ inputs.output_dir || 'FORENSIC_AUDIT' }}
+          MANIFEST_PATH: ${{ inputs.manifest_path || '_OPS/scripts/source_repos_manifest.json' }}
+        run: |
+          python _OPS/scripts/source_repo_forensic_audit.py
+
+      # -----------------------------------------------------------------------
+      # 5. Upload reports as workflow artifacts (always, even on failure)
+      # -----------------------------------------------------------------------
+      - name: Upload forensic reports as artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: source-forensic-audit-reports
+          path: |
+            ${{ inputs.output_dir || 'FORENSIC_AUDIT' }}/sources/
+            ${{ inputs.output_dir || 'FORENSIC_AUDIT' }}/sources_index.json
+            ${{ inputs.output_dir || 'FORENSIC_AUDIT' }}/sources_index.md
+          retention-days: 90
+          if-no-files-found: warn
+
+      # -----------------------------------------------------------------------
+      # 6. Commit updated reports back to the repository
+      #    Skipped on pull_request events (can't push to forks).
+      # -----------------------------------------------------------------------
+      - name: Commit forensic reports
+        if: github.event_name != 'pull_request'
+        run: |
+          git config --global user.name  "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+          OUTPUT_DIR="${{ inputs.output_dir || 'FORENSIC_AUDIT' }}"
+
+          # Stage only the report files — never stage unrelated changes.
+          # The sources/ directory may not exist if all clones failed, so we
+          # check each path before staging.
+          for path in \
+            "${OUTPUT_DIR}/sources/" \
+            "${OUTPUT_DIR}/sources_index.json" \
+            "${OUTPUT_DIR}/sources_index.md"
+          do
+            if [ -e "$path" ]; then
+              git add "$path"
+            fi
+          done
+
+          # Only commit if there is something new to commit
+          if git diff --cached --quiet; then
+            echo "No changes to forensic report files — skipping commit."
+          else
+            TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+            git commit -m "chore(forensic): update source-repo forensic audit [${TIMESTAMP}]"
+            git push origin HEAD
+          fi
