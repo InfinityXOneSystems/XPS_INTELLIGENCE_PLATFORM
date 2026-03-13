@@ -156,4 +156,36 @@ class BaseAgent:
 
 ---
 
+## 🔀 Legacy Dashboard Integration Policy
+
+The XPS Intelligence System legacy dashboard (`InfinityXOneSystems/XPS_INTELLIGENCE_SYSTEM`, GitHub Pages) is integrated into this monorepo at the `/legacy-dashboard` route.
+
+### Integration Rules (NON-NEGOTIABLE)
+
+1. **Additive only** — the `/legacy-dashboard` route is an addition; never modify or remove existing UI routes
+2. **Feature flag** — `NEXT_PUBLIC_LEGACY_DASHBOARD_MODE=iframe|native` (default: `iframe`)
+   - `iframe` mode embeds the live GitHub Pages site with zero feature loss
+   - `native` mode is only enabled after full parity is confirmed in `LEGACY_DASHBOARD_MIGRATION.md`
+3. **No aesthetic drift** — the legacy dashboard appearance must be preserved exactly in iframe mode; native ports must pass visual snapshot diff ≤ 0.2
+4. **Migration ledger** — every legacy feature ported to native must update `LEGACY_DASHBOARD_MIGRATION.md` with status `ported` and link to test coverage
+5. **Parity gate** — never switch `NEXT_PUBLIC_LEGACY_DASHBOARD_MODE` to `native` without all features marked `ported` in the ledger
+
+### Key Files
+
+| File | Purpose |
+|------|---------|
+| `apps/frontend/src/app/legacy-dashboard/page.tsx` | Integration route |
+| `FORENSIC_AUDIT/legacy_dashboard_discovery.md` | Discovery report |
+| `FORENSIC_AUDIT/legacy_dashboard_feature_matrix.json` | Machine-readable feature matrix |
+| `LEGACY_DASHBOARD_MIGRATION.md` | Per-feature migration ledger |
+| `_OPS/ARCHITECTURE/SYSTEM_TOPOLOGY.md` | System topology (updated) |
+| `tests/e2e/legacy-dashboard.spec.ts` | Playwright E2E proof tests |
+
+### Legacy Dashboard Source
+- **Repo:** `InfinityXOneSystems/XPS_INTELLIGENCE_SYSTEM`
+- **Build:** `dashboard/` (Next.js) → `nextjs.yml` workflow → GitHub Pages
+- **URL:** `https://infinityxonesystems.github.io/XPS_INTELLIGENCE_SYSTEM/`
+
+---
+
 *These instructions are enforced by GitHub Copilot and reviewed on every PR.*
