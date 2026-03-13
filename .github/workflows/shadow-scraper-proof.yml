@@ -25,7 +25,7 @@ on:
   workflow_dispatch:
     inputs:
       target_urls:
-        description: "Newline-separated URLs to scrape (leave blank for default proof targets)"
+        description: "Newline- or comma-separated URLs to scrape (leave blank for default proof targets)"
         required: false
         default: ""
 
@@ -112,8 +112,9 @@ jobs:
           successes = [r for r in data if r.get("success")]
           failures  = [r for r in data if not r.get("success")]
 
+          ts = datetime.datetime.now(datetime.timezone.utc).isoformat()
           lines = [
-              f"# Shadow Scraper Proof — {datetime.datetime.utcnow().isoformat()}Z",
+              f"# Shadow Scraper Proof — {ts}",
               f"",
               f"**Run by:** GitHub Actions  ",
               f"**Commit:** ${{ github.sha }}  ",

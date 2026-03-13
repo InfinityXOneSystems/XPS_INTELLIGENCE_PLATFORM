@@ -131,7 +131,7 @@ class ScraperConfig:
 
         if cfg.compliance_mode:
             # Heightened mode: double all delay floors.
-            cfg.min_delay_ms = max(cfg.min_delay_ms, cfg.min_delay_ms * 2)
+            cfg.min_delay_ms *= 2
 
         return cfg
 
@@ -278,9 +278,10 @@ class ShadowScraper:
         host = _hostname(url)
         last = self._last_request_time.get(host, 0.0)
         min_delay_s = self.config.min_delay_ms / 1000.0
-        # Add a small random jitter (±20 %) as anti-bot evasion.
-        jitter = random.uniform(-0.2 * min_delay_s, 0.2 * min_delay_s)
-        required_gap = max(0.0, min_delay_s + jitter)
+        # Apply a small random jitter (0–20 % of min delay) on top of the
+        # minimum so the actual wait is always >= min_delay_s.
+        jitter = random.uniform(0.0, 0.2 * min_delay_s)
+        required_gap = min_delay_s + jitter
         elapsed = time.monotonic() - last
         wait = required_gap - elapsed
         if wait > 0:
@@ -437,7 +438,6 @@ class ShadowScraper:
         ``config.max_concurrency``.  Returns results in input order.
         """
         semaphore = asyncio.Semaphore(self.config.max_concurrency)
-        results: list[ScrapeResult] = []
 
         async def _scrape(url: str) -> ScrapeResult:
             async with semaphore:
@@ -445,15 +445,20 @@ class ShadowScraper:
                     url, take_screenshot=take_screenshot, retries=retries
                 )
 
-        tasks = [_scrape(url) for url in urls]
+        tasks = [asyncio.create_task(_scrape(url)) for url in urls]
 
-        for coro in asyncio.as_completed(tasks):
+        results: list[ScrapeResult] = []
+        for task in tasks:
             try:
-                result = await coro
+                result = await task
+                results.append(result)
             except BudgetExhausted as exc:
                 logger.warning("💰 Budget exhausted during batch scrape: %s", exc)
+                # Cancel remaining tasks cleanly.
+                for pending in tasks:
+                    if not pending.done():
+                        pending.cancel()
                 break
-            results.append(result)
 
         logger.info(
             "📦 Batch complete. %d/%d results. Requests used: %d/%d",

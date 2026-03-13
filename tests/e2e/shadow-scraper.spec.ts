@@ -62,7 +62,7 @@ test.describe('Shadow Scraper: Config Validation', () => {
   test('proof_targets are valid HTTPS URLs', () => {
     const cfg = JSON.parse(readFileSync(CONFIG_PATH, 'utf-8'));
     for (const url of cfg.proof_targets as string[]) {
-      expect(url).toMatch(/^https:\/\//);
+      expect(url.startsWith('https://')).toBe(true);
     }
   });
 
