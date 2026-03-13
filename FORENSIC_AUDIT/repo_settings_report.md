@@ -1,7 +1,7 @@
 # Repository Settings Audit Report
 
 **Repository:** `InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM`  
-**Generated:** 2026-03-13T20:55:00.171720+00:00  
+**Generated:** 2026-03-13T20:56:28.307125+00:00  
 **Default branch:** `main`
 
 ---
@@ -25,11 +25,10 @@
 
 ## Branches
 
-**Total branches:** 15
+**Total branches:** 14
 
 - `XPS_INTELLIGENCE_PLATFORM_PAGE`
 - `copilot/bootstrap-repo-infinityxonesystems`
-- `copilot/discover-integrate-legacy-dashboard`
 - `dependabot/github_actions/actions/checkout-6`
 - `dependabot/github_actions/actions/github-script-8`
 - `dependabot/github_actions/actions/labeler-6`
@@ -99,11 +98,10 @@
 
 ## Open Pull Requests
 
-**Count:** 12
+**Count:** 11
 
 | # | Title | Author | Draft | Head → Base | Created |
 | - | ----- | ------ | ----- | ----------- | ------- |
-| [16](https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/16) | feat(frontend): integrate XPS_INTELLIGENCE_SYSTEM legacy dashboard into monorepo via iframe bridge | Copilot | ✏️ draft | `copilot/discover-integrate-legacy-dashboard` → `main` | 2026-03-13 |
 | [14](https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/14) | ci(deps): bump actions/stale from 9 to 10 | dependabot[bot] |  | `dependabot/github_actions/actions/stale-10` → `main` | 2026-03-13 |
 | [13](https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/13) | ci(deps): bump actions/setup-node from 4 to 6 | dependabot[bot] |  | `dependabot/github_actions/actions/setup-node-6` → `main` | 2026-03-13 |
 | [12](https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/12) | ci(deps): bump actions/labeler from 5 to 6 | dependabot[bot] |  | `dependabot/github_actions/actions/labeler-6` → `main` | 2026-03-13 |
