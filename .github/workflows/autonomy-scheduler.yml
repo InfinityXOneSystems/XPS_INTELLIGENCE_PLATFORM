@@ -1,0 +1,68 @@
+name: Autonomy Scheduler
+
+on:
+  schedule:
+    # Every 2 hours
+    - cron: '0 */2 * * *'
+  workflow_dispatch:
+    inputs:
+      force_run:
+        description: Force run even if AUTONOMY_ENABLED is false
+        required: false
+        default: 'false'
+        type: boolean
+
+permissions:
+  contents: read
+
+jobs:
+  trigger-autonomy-cycle:
+    name: Trigger 2-Hour Autonomy Cycle
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger backend autonomy cycle
+        env:
+          BACKEND_URL: ${{ secrets.BACKEND_URL }}
+          AUTONOMY_TOKEN: ${{ secrets.AUTONOMY_TOKEN }}
+        run: |
+          if [[ -z "$BACKEND_URL" ]]; then
+            echo "⚠️  BACKEND_URL not set — skipping autonomy cycle trigger"
+            exit 0
+          fi
+
+          FORCE="${{ github.event.inputs.force_run || 'false' }}"
+          echo "Triggering autonomy cycle at ${BACKEND_URL}/api/v1/autonomy/cycle (force=${FORCE})"
+
+          HTTP_CODE=$(curl -s -o /tmp/cycle_response.json -w "%{http_code}" \
+            -X POST "${BACKEND_URL}/api/v1/autonomy/cycle" \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${AUTONOMY_TOKEN}" \
+            -d "{\"force\": ${FORCE}}" \
+            --max-time 30 \
+            2>/dev/null || echo "000")
+
+          echo "Response code: ${HTTP_CODE}"
+          cat /tmp/cycle_response.json 2>/dev/null || echo "(no response body)"
+
+          if [[ "$HTTP_CODE" == "200" || "$HTTP_CODE" == "202" ]]; then
+            echo "✅ Autonomy cycle triggered successfully"
+          elif [[ "$HTTP_CODE" == "000" ]]; then
+            echo "⚠️  Backend unreachable — scheduling will retry next run"
+            exit 0
+          else
+            echo "❌ Unexpected response: ${HTTP_CODE}"
+            exit 1
+          fi
+
+      - name: Log cycle summary
+        if: always()
+        run: |
+          echo "## Autonomy Cycle Summary" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Field | Value |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|-------|-------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Triggered at | $(date -u +%Y-%m-%dT%H:%M:%SZ) |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Schedule | Every 2 hours (0 */2 * * *) |" >> "$GITHUB_STEP_SUMMARY"
+          if [[ -f /tmp/cycle_response.json ]]; then
+            CYCLE_STATUS=$(python3 -c "import json,sys; d=json.load(open('/tmp/cycle_response.json')); print(d.get('status','unknown'))" 2>/dev/null || echo "unknown")
+            echo "| Cycle Status | ${CYCLE_STATUS} |" >> "$GITHUB_STEP_SUMMARY"
+          fi

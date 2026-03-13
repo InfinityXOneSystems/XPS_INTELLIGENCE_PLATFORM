@@ -156,12 +156,37 @@ jobs:
           fi
 
   # ────────────────────────────────────────────────────────
+  # Deploy Workers
+  # ────────────────────────────────────────────────────────
+  deploy-workers:
+    name: Deploy Workers (${{ needs.setup.outputs.environment }})
+    runs-on: ubuntu-latest
+    needs: [setup, deploy-backend]
+    if: needs.setup.outputs.deploy_backend == 'true'
+    environment: ${{ needs.setup.outputs.environment }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli
+
+      - name: Deploy default worker
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          if [[ -f "apps/workers/default/railway.json" ]]; then
+            railway up --service xps-worker-default --detach
+          else
+            echo "⚠️  No worker railway.json — skipping"
+          fi
+
+  # ────────────────────────────────────────────────────────
   # Deploy Summary
   # ────────────────────────────────────────────────────────
   deploy-summary:
     name: Deploy Summary
     runs-on: ubuntu-latest
-    needs: [setup, deploy-backend, deploy-frontend]
+    needs: [setup, deploy-backend, deploy-frontend, deploy-workers]
     if: always()
     steps:
       - name: Summary
@@ -171,4 +196,5 @@ jobs:
           echo "|---------|--------|" >> "$GITHUB_STEP_SUMMARY"
           echo "| Backend | ${{ needs.deploy-backend.result }} |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Frontend | ${{ needs.deploy-frontend.result }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Workers | ${{ needs.deploy-workers.result }} |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Environment | ${{ needs.setup.outputs.environment }} |" >> "$GITHUB_STEP_SUMMARY"
