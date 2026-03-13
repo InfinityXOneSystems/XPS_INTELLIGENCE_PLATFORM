@@ -1,0 +1,276 @@
+{
+  "meta": {
+    "source_repo": "InfinityXOneSystems/XPS_INTELLIGENCE_SYSTEM",
+    "source_commit": "c706181899cc7f73af0f00a5f2d50ce0d9f43dc9",
+    "pages_url": "https://infinityxonesystems.github.io/XPS_INTELLIGENCE_SYSTEM/",
+    "discovery_date": "2026-03-13",
+    "build_source": "dashboard/",
+    "build_workflow": ".github/workflows/nextjs.yml",
+    "framework": "Next.js 15.5.10",
+    "rendering": "static-export"
+  },
+  "routes": [
+    {
+      "path": "/",
+      "source_file": "dashboard/pages/index.js",
+      "description": "Dashboard home — redirect hub",
+      "status": "bridged",
+      "migration_priority": "low"
+    },
+    {
+      "path": "/leads",
+      "source_file": "dashboard/pages/leads.js",
+      "description": "Lead list with search, filter, score bars, tier badges, pagination",
+      "status": "bridged",
+      "migration_priority": "high"
+    },
+    {
+      "path": "/analytics",
+      "source_file": "dashboard/pages/analytics.js",
+      "description": "Analytics and reporting charts",
+      "status": "bridged",
+      "migration_priority": "high"
+    },
+    {
+      "path": "/crm",
+      "source_file": "dashboard/pages/crm.js",
+      "description": "CRM lead lifecycle pipeline (largest file: 36KB)",
+      "status": "bridged",
+      "migration_priority": "high"
+    },
+    {
+      "path": "/workspace",
+      "source_file": "dashboard/pages/workspace.js",
+      "description": "Execution workspace / canvas (30KB)",
+      "status": "bridged",
+      "migration_priority": "medium"
+    },
+    {
+      "path": "/studio",
+      "source_file": "dashboard/pages/studio.js",
+      "description": "Content creation studio (23KB)",
+      "status": "bridged",
+      "migration_priority": "medium"
+    },
+    {
+      "path": "/intelligence",
+      "source_file": "dashboard/pages/intelligence.js",
+      "description": "Intelligence engine results feed",
+      "status": "bridged",
+      "migration_priority": "medium"
+    },
+    {
+      "path": "/chat",
+      "source_file": "dashboard/pages/chat.js",
+      "description": "AI-powered chat interface",
+      "status": "bridged",
+      "migration_priority": "medium"
+    },
+    {
+      "path": "/connectors",
+      "source_file": "dashboard/pages/connectors.js",
+      "description": "Data source connector management",
+      "status": "bridged",
+      "migration_priority": "medium"
+    },
+    {
+      "path": "/trends",
+      "source_file": "dashboard/pages/trends.js",
+      "description": "Market trend visualizations",
+      "status": "bridged",
+      "migration_priority": "low"
+    },
+    {
+      "path": "/guardian",
+      "source_file": "dashboard/pages/guardian.js",
+      "description": "System Guardian health monitor",
+      "status": "bridged",
+      "migration_priority": "low"
+    },
+    {
+      "path": "/invention-lab",
+      "source_file": "dashboard/pages/invention-lab.js",
+      "description": "Invention Lab R&D workspace",
+      "status": "bridged",
+      "migration_priority": "low"
+    },
+    {
+      "path": "/settings",
+      "source_file": "dashboard/pages/settings.js",
+      "description": "Settings center",
+      "status": "bridged",
+      "migration_priority": "low"
+    },
+    {
+      "path": "/admin/*",
+      "source_file": "dashboard/pages/admin/",
+      "description": "Admin panel sub-routes",
+      "status": "bridged",
+      "migration_priority": "low"
+    }
+  ],
+  "widgets": [
+    {
+      "name": "LeadTable",
+      "description": "Sortable/filterable lead grid with score bars and tier badges",
+      "used_in": ["/leads"],
+      "status": "bridged",
+      "test_coverage": "e2e-iframe"
+    },
+    {
+      "name": "StatsBar",
+      "description": "Summary stat cards: Total / Hot / Warm / Cold lead counts",
+      "used_in": ["/leads", "/analytics"],
+      "status": "bridged",
+      "test_coverage": "e2e-iframe"
+    },
+    {
+      "name": "ScoreBar",
+      "description": "Visual progress bar for lead score with tier coloring",
+      "used_in": ["/leads", "/crm"],
+      "status": "bridged",
+      "test_coverage": "e2e-iframe"
+    },
+    {
+      "name": "TierBadge",
+      "description": "Color-coded pill badge: HOT / WARM / COLD",
+      "used_in": ["/leads", "/crm"],
+      "status": "bridged",
+      "test_coverage": "e2e-iframe"
+    },
+    {
+      "name": "FilterControls",
+      "description": "Search input + dropdowns for Tier, Industry, State, Per-page",
+      "used_in": ["/leads"],
+      "status": "bridged",
+      "test_coverage": "e2e-iframe"
+    },
+    {
+      "name": "Pagination",
+      "description": "Smart page navigator with window and ellipsis",
+      "used_in": ["/leads"],
+      "status": "bridged",
+      "test_coverage": "e2e-iframe"
+    },
+    {
+      "name": "AnalyticsCharts",
+      "description": "Lead trend charts and KPI visualizations",
+      "used_in": ["/analytics"],
+      "status": "bridged",
+      "test_coverage": "e2e-iframe"
+    },
+    {
+      "name": "CRMPipeline",
+      "description": "Lead lifecycle pipeline / kanban board",
+      "used_in": ["/crm"],
+      "status": "bridged",
+      "test_coverage": "e2e-iframe"
+    },
+    {
+      "name": "ChatInterface",
+      "description": "AI-powered chat with message history",
+      "used_in": ["/chat"],
+      "status": "bridged",
+      "test_coverage": "e2e-iframe"
+    },
+    {
+      "name": "ConnectorCards",
+      "description": "Integration connector management UI",
+      "used_in": ["/connectors"],
+      "status": "bridged",
+      "test_coverage": "e2e-iframe"
+    },
+    {
+      "name": "GuardianMonitor",
+      "description": "System health status and guardian panels",
+      "used_in": ["/guardian"],
+      "status": "bridged",
+      "test_coverage": "e2e-iframe"
+    },
+    {
+      "name": "IntelligenceFeed",
+      "description": "Intelligence engine result feed",
+      "used_in": ["/intelligence"],
+      "status": "bridged",
+      "test_coverage": "e2e-iframe"
+    },
+    {
+      "name": "InventionLabWorkspace",
+      "description": "R&D workspace panels",
+      "used_in": ["/invention-lab"],
+      "status": "bridged",
+      "test_coverage": "e2e-iframe"
+    },
+    {
+      "name": "SettingsForms",
+      "description": "Configuration panels and settings forms",
+      "used_in": ["/settings"],
+      "status": "bridged",
+      "test_coverage": "e2e-iframe"
+    },
+    {
+      "name": "StudioCanvas",
+      "description": "Content creation workspace",
+      "used_in": ["/studio"],
+      "status": "bridged",
+      "test_coverage": "e2e-iframe"
+    },
+    {
+      "name": "TrendCharts",
+      "description": "Market trend visualizations",
+      "used_in": ["/trends"],
+      "status": "bridged",
+      "test_coverage": "e2e-iframe"
+    },
+    {
+      "name": "WorkspaceCanvas",
+      "description": "Execution workspace and agent canvas",
+      "used_in": ["/workspace"],
+      "status": "bridged",
+      "test_coverage": "e2e-iframe"
+    }
+  ],
+  "data_dependencies": [
+    {
+      "name": "Railway REST API",
+      "type": "live-api",
+      "url": "https://xps-intelligence.up.railway.app/api/leads",
+      "params": "limit=2000",
+      "timeout_ms": 8000,
+      "fallback": "scored_leads.json"
+    },
+    {
+      "name": "scored_leads.json",
+      "type": "static-file",
+      "path": "./data/scored_leads.json",
+      "description": "Pre-scored lead records (Railway API fallback)"
+    },
+    {
+      "name": "scoring_report.json",
+      "type": "static-file",
+      "path": "./data/scoring_report.json",
+      "description": "Scoring metadata report"
+    }
+  ],
+  "static_pages": [
+    {
+      "path": "pages/index.html",
+      "description": "Standalone static lead dashboard (fetches Railway API, fallback local JSON)",
+      "size_bytes": 16815
+    },
+    {
+      "path": "pages/port_st_lucie_proof.html",
+      "description": "Port St. Lucie proof-of-concept lead results page",
+      "size_bytes": 17837
+    }
+  ],
+  "integration": {
+    "mode": "iframe",
+    "feature_flag": "NEXT_PUBLIC_LEGACY_DASHBOARD_MODE",
+    "flag_values": ["iframe", "native"],
+    "default": "iframe",
+    "iframe_url": "https://infinityxonesystems.github.io/XPS_INTELLIGENCE_SYSTEM/",
+    "target_route": "/legacy-dashboard",
+    "target_app": "apps/frontend/"
+  }
+}
