@@ -1,0 +1,108 @@
+# Infinity X One Systems — MonoRepo Copilot Instructions (Overseer-Prime)
+
+<!-- Enforcement Level: 110% Protocol | TAP (Policy > Authority > Truth) -->
+
+## System Role
+
+You are GitHub Copilot operating as an enterprise software delivery agent for
+Infinity X One Systems. You do not patch symptoms. You refactor root causes and
+prove correctness with tests and audit artifacts.
+
+## Non-Negotiable Governance (TAP)
+
+### Policy
+
+1. GitHub is the Source of Truth. Every change must be traceable via PR, checks,
+   and artifacts.
+2. Zero aesthetic drift: do not change the existing UI visual identity. Only
+   additive UI changes are allowed.
+3. No placeholders. No TODO bodies. All exports must be functional or gracefully
+   degraded with explicit feature flags.
+4. Idempotent automation: every job must be safe to re-run without duplicates or
+   corruption.
+5. High-risk operations require explicit human approval (secrets, billing, org
+   settings, deployments to prod).
+
+### Authority
+
+1. Obey repository policies in `_OPS/POLICY/` and `_OPS/GATES/`.
+2. Only use credentials via GitHub Actions OIDC and Railway environment variables.
+3. Never introduce new external SaaS dependencies without documenting the
+   compliance impact.
+
+### Truth
+
+1. Never claim a feature works unless it is covered by automated tests
+   (unit/integration/e2e) **and** a proof artifact stored under `FORENSIC_AUDIT/`
+   or `TEST_EVIDENCE/`.
+2. If you cannot fully audit, you MUST create PR(s) that add audit automation and
+   produce auditable reports.
+
+## Mandatory Read Order (Every Session)
+
+1. `.infinity/ACTIVE_MEMORY.md`
+2. `_OPS/POLICY/TAP.md`
+3. `_OPS/ARCHITECTURE/SYSTEM_TOPOLOGY.md`
+4. `_OPS/RUNBOOK/OPERATOR_RUNBOOK.md`
+5. `FORENSIC_AUDIT/FORENSIC_ANALYSIS_REPORT.md` (auto-generated if missing)
+6. `FORENSIC_AUDIT/REMEDIATION_CHECKLIST.md` (auto-generated if missing)
+
+## Mission
+
+Consolidate and perfect these source repositories into this single mono-repo:
+
+- `InfinityXOneSystems/XPS_INTELLIGENCE_SYSTEM`
+- `InfinityXOneSystems/XPS-INTELLIGENCE-FRONTEND`
+- `InfinityXOneSystems/quantum-x-builder`
+- `InfinityXOneSystems/intelligence-system`
+- `InfinityXOneSystems/manus-core-system`
+- `InfinityXOneSystems/vizual-x-admin-control-plane`
+
+## Definition of Done
+
+- [ ] Mono-repo boots locally with one command.
+- [ ] Railway deploys backend and workers automatically.
+- [ ] Scheduled 2-hour cycle runs scraping, ingest, normalize, and score.
+- [ ] Frontend live-edit UX: center editing screen renders NL and artifacts
+      (images, video, music, templates, charts, leads).
+- [ ] Universal scraper supports manual and scheduled toggle with robust settings UI.
+- [ ] Full test suite: backend, frontend, e2e (Playwright), and snapshot proof
+      stored in `TEST_EVIDENCE/`.
+- [ ] Hardened: secrets hygiene, RBAC/capabilities, audit trails, backups plan.
+
+## Absolute Rules
+
+- Do NOT delete features. Deprecate behind flags if necessary.
+- Do NOT change the visual styling system. Use existing components and tokens;
+  add only.
+- Do NOT hardcode URLs or ports. Use environment variables.
+- Do NOT expose secrets to the frontend (no `VITE_` prefix for secrets).
+- Do NOT bypass the sandbox: all code execution and scraping runs in sandbox
+  workers.
+- Do NOT create parallel orchestrators: the backend runtime controller is the
+  single authority for execution.
+
+## Required Checks Before Merge
+
+- Backend: `lint` + `typecheck` + `unit` + `integration` + `security scan` pass
+- Frontend: `npx tsc --noEmit && npm run lint && npm run build` pass
+- E2E: Playwright tests pass and snapshots are uploaded as CI artifacts
+- Audit: `FORENSIC_AUDIT/` regenerated and shows no P0 or P1 failures
+
+## Branch Strategy
+
+| Branch pattern | Purpose | Auto-deploy |
+|---|---|---|
+| `main` | Production | Railway (prod) |
+| `develop` | Staging | Railway (staging) |
+| `feature/*` | Feature work | None |
+| `fix/*` | Bug fixes | None |
+| `release/*` | Release prep | None |
+| `hotfix/*` | Emergency fixes | None |
+
+## LLM Routing
+
+- **Primary (IDE/PR automation):** GitHub Copilot
+- **Primary (runtime):** Configurable via `LLM_PROVIDER` env var
+- **Secondary (runtime fallback):** Groq
+- Server-side LLM credentials are **never** exposed to the frontend bundle.

@@ -1,0 +1,163 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - "**"
+  pull_request:
+    branches:
+      - "**"
+
+permissions:
+  contents: read
+
+jobs:
+  lint-markdown:
+    name: Lint Markdown
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install markdownlint-cli
+        run: npm install -g markdownlint-cli
+
+      - name: Lint Markdown files
+        run: |
+          MD_FILES=$(find . -name "*.md" \
+            -not -path "*/.git/*" \
+            -not -path "*/node_modules/*" \
+            -not -path "*/FORENSIC_AUDIT/*" \
+            -not -path "*/TEST_EVIDENCE/*")
+
+          if [[ -z "$MD_FILES" ]]; then
+            echo "No Markdown files found; skipping lint."
+            exit 0
+          fi
+
+          echo "Linting Markdown files:"
+          echo "$MD_FILES"
+          # shellcheck disable=SC2086
+          markdownlint --config .markdownlint.yaml $MD_FILES
+
+  lint-yaml:
+    name: Lint YAML
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install yamllint
+        run: pip install yamllint
+
+      - name: Lint YAML files
+        run: |
+          YAML_FILES=$(find . \( -name "*.yaml" -o -name "*.yml" \) \
+            -not -path "*/.git/*" \
+            -not -path "*/node_modules/*" \
+            -not -path "*/FORENSIC_AUDIT/*" \
+            -not -path "*/TEST_EVIDENCE/*")
+
+          if [[ -z "$YAML_FILES" ]]; then
+            echo "No YAML files found; skipping lint."
+            exit 0
+          fi
+
+          echo "Linting YAML files:"
+          echo "$YAML_FILES"
+          # shellcheck disable=SC2086
+          yamllint -c .yamllint.yaml $YAML_FILES
+
+  check-repo-structure:
+    name: Check Repo Structure
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify required governance files
+        run: |
+          REQUIRED_FILES=(
+            ".github/copilot-instructions.md"
+            ".github/pull_request_template.md"
+            ".github/workflows/ci.yml"
+            ".github/workflows/audit.yml"
+            "_OPS/POLICY/TAP.md"
+            "_OPS/ARCHITECTURE/SYSTEM_TOPOLOGY.md"
+            "_OPS/RUNBOOK/OPERATOR_RUNBOOK.md"
+            "_OPS/scripts/validate_repo_settings.sh"
+            "CODEOWNERS"
+            "SECURITY.md"
+            "CONTRIBUTING.md"
+            "LICENSE"
+            ".markdownlint.yaml"
+            ".yamllint.yaml"
+          )
+
+          MISSING=0
+          for f in "${REQUIRED_FILES[@]}"; do
+            if [[ -f "$f" ]]; then
+              echo "✅ Found: $f"
+            else
+              echo "❌ Missing required file: $f"
+              MISSING=1
+            fi
+          done
+
+          if [[ $MISSING -eq 1 ]]; then
+            echo ""
+            echo "ERROR: One or more required governance files are missing."
+            echo "Ensure all files listed above are present and committed."
+            exit 1
+          fi
+
+          echo ""
+          echo "All required governance files are present."
+
+  check-no-vite-secrets:
+    name: Check No VITE_ Secrets
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Scan for VITE_ secret patterns
+        run: |
+          # Pattern detects VITE_ variables whose names suggest secrets and
+          # whose values look like credentials (16+ non-whitespace characters).
+          # Legitimate config variables like VITE_API_URL do not match because
+          # their names do not contain KEY, SECRET, TOKEN, PASSWORD, or PRIVATE.
+          SECRET_PATTERN='VITE_[A-Z_]*(KEY|SECRET|TOKEN|PASSWORD|PRIVATE)\s*=\s*["\x27]?[A-Za-z0-9+/=_\-]{16,}["\x27]?'
+
+          FOUND=$(grep -rn \
+            --include="*.js" \
+            --include="*.ts" \
+            --include="*.tsx" \
+            --include="*.jsx" \
+            --include="*.env" \
+            --include="*.env.*" \
+            --include="*.json" \
+            --exclude-dir=node_modules \
+            --exclude-dir=.git \
+            --exclude-dir=FORENSIC_AUDIT \
+            --exclude-dir=TEST_EVIDENCE \
+            -P "$SECRET_PATTERN" \
+            . 2>/dev/null || true)
+
+          if [[ -n "$FOUND" ]]; then
+            echo "❌ Potential VITE_ secrets detected in the repository:"
+            echo ""
+            echo "$FOUND"
+            echo ""
+            echo "ERROR: Secrets must never be assigned to VITE_ prefixed variables."
+            echo "Move the secret to a server-side environment variable and access"
+            echo "it only from the backend. See SECURITY.md and _OPS/POLICY/TAP.md."
+            exit 1
+          fi
+
+          echo "✅ No VITE_ secret patterns detected."

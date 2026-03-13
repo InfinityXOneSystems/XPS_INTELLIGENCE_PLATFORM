@@ -1,0 +1,39 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-03-13T20:28:20Z",
+  "repository": "InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM",
+  "branch_checked": "main",
+  "api_status": {
+    "repo_info": "403",
+    "branch_protection": "403",
+    "rulesets": "403"
+  },
+  "repo_settings": {
+    "private": false,
+    "default_branch": "unknown",
+    "has_issues": false,
+    "delete_branch_on_merge": false,
+    "allow_auto_merge": false,
+    "allow_merge_commit": true,
+    "allow_squash_merge": true,
+    "allow_rebase_merge": true,
+    "secret_scanning": "unknown",
+    "secret_scanning_push_protection": "unknown",
+    "advanced_security": "unknown"
+  },
+  "branch_protection": {
+    "configured": "unknown",
+    "note": "Insufficient token permissions to read branch protection (need administration:read scope)."
+  },
+  "rulesets_count": 0,
+  "compliance_summary": {
+    "status": "PASS",
+    "total_issues": 0,
+    "issues": [],
+    "recommendations": [
+      "Enable 'Automatically delete head branches' for cleaner branch management.",
+      "Disable merge commits; use squash merges only for a clean linear history.",
+      "Disable rebase merges; use squash merges only for consistent attribution."
+    ]
+  }
+}

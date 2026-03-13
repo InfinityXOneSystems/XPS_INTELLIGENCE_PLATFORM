@@ -1,0 +1,51 @@
+You are to create a PR that performs a complete forensic audit of the following
+source repositories before any consolidation work begins:
+
+  - InfinityXOneSystems/XPS_INTELLIGENCE_SYSTEM
+  - InfinityXOneSystems/XPS-INTELLIGENCE-FRONTEND
+  - InfinityXOneSystems/quantum-x-builder
+  - InfinityXOneSystems/intelligence-system
+  - InfinityXOneSystems/manus-core-system
+  - InfinityXOneSystems/vizual-x-admin-control-plane
+
+Requirements:
+
+1. Add scripts under _OPS/scripts/ that use the GitHub API (read-only, via
+   GITHUB_TOKEN) to fetch and record each repository's:
+   - Complete file tree (top 3 levels)
+   - Active workflow names and trigger conditions
+   - Open issues count and labels
+   - Dependency manifest files (package.json, requirements.txt, pyproject.toml)
+   - README content (first 200 lines)
+   - Latest commit SHA and date
+
+2. For each repository, generate a report containing:
+   - File inventory with counts by extension
+   - Identified framework/language stack
+   - Workflow matrix (workflow name → trigger → jobs)
+   - Dependency list with known CVE flags
+   - Architecture violations relative to _OPS/ARCHITECTURE/SYSTEM_TOPOLOGY.md
+   - Keep/Refactor/Deprecate decision for each major component
+
+3. Compile all per-repo reports into:
+   - FORENSIC_AUDIT/FORENSIC_ANALYSIS_REPORT.md (human-readable)
+   - FORENSIC_AUDIT/consolidation_plan.json (machine-readable, for Phase 2)
+
+4. Add .github/workflows/audit.yml to run this audit:
+   - On every push to main
+   - On a nightly schedule
+   - On manual workflow_dispatch
+   - Upload FORENSIC_AUDIT/ as a GitHub Actions artifact
+
+5. Do NOT change any application code during this phase. Only add audit
+   scripts and the audit workflow.
+
+6. The PR and all scripts must be idempotent: safe to run multiple times
+   without duplicating data or corrupting existing reports.
+
+7. All scripts must be complete and functional with no TODO bodies.
+
+Acceptance criteria:
+- audit.yml workflow runs and completes successfully on a fresh repo.
+- FORENSIC_AUDIT/ artifact is uploaded and contains valid JSON and Markdown.
+- No application code is modified.

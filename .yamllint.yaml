@@ -1,0 +1,35 @@
+# yamllint configuration for XPS Intelligence Platform
+# https://yamllint.readthedocs.io/
+
+extends: default
+
+rules:
+  # Disable line length — governance YAML and workflow files use long lines
+  line-length: disable
+
+  # Disable truthy check — GitHub Actions uses 'on:' as a key which triggers
+  # this rule; disabling avoids false positives on workflow files
+  truthy: disable
+
+  # Allow 1 space before comment content (default requires 2)
+  comments:
+    min-spaces-from-content: 1
+
+  # GitHub Actions workflow files do not use document-start markers
+  document-start: disable
+
+  # Allow empty lines at end of file
+  empty-lines:
+    max: 2
+    max-start: 0
+    max-end: 1
+
+  # Allow brackets with spaces inside for readability in complex expressions
+  brackets:
+    min-spaces-inside: 0
+    max-spaces-inside: 1
+
+  # Allow braces with spaces inside
+  braces:
+    min-spaces-inside: 0
+    max-spaces-inside: 1

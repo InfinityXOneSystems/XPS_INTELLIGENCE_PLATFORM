@@ -1,0 +1,3 @@
+# This directory is populated by the audit.yml GitHub Actions workflow.
+# Reports are generated at runtime and uploaded as CI artifacts.
+# The repo_settings_report.json file is produced by _OPS/scripts/validate_repo_settings.sh
