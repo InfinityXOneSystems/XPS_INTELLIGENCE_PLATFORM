@@ -1,7 +1,7 @@
 # Repository Settings Audit Report
 
 **Repository:** `InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM`  
-**Generated:** 2026-03-13T21:03:41.313341+00:00  
+**Generated:** 2026-03-13T21:47:19.363670+00:00  
 **Default branch:** `main`
 
 ---
@@ -25,11 +25,9 @@
 
 ## Branches
 
-**Total branches:** 5
+**Total branches:** 3
 
 - `XPS_INTELLIGENCE_PLATFORM_PAGE`
-- `dependabot/github_actions/actions/checkout-6`
-- `dependabot/github_actions/github/codeql-action-4`
 - `gh-pages`
 - `main`
 
@@ -70,6 +68,9 @@
 ### Environment: `XPS Intelligence / production`
 - No protection rules.
 
+### Environment: `XPS INTELLIGENCE PLATFORM / production`
+- No protection rules.
+
 ### Environment: `XPS_INTELLIGENCE_PLATFORM`
 - Rule type: `branch_policy`
 
@@ -89,12 +90,7 @@
 
 ## Open Pull Requests
 
-**Count:** 2
-
-| # | Title | Author | Draft | Head → Base | Created |
-| - | ----- | ------ | ----- | ----------- | ------- |
-| [6](https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/6) | ci(deps): bump github/codeql-action from 3 to 4 | dependabot[bot] |  | `dependabot/github_actions/github/codeql-action-4` → `main` | 2026-03-13 |
-| [5](https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/5) | ci(deps): bump actions/checkout from 4 to 6 | dependabot[bot] |  | `dependabot/github_actions/actions/checkout-6` → `main` | 2026-03-13 |
+_No open pull requests._
 
 ---
 
