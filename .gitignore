@@ -205,3 +205,12 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# FORENSIC_AUDIT generated reports (uploaded as CI artifacts, not committed)
+FORENSIC_AUDIT/*.json
+FORENSIC_AUDIT/FORENSIC_ANALYSIS_REPORT.md
+FORENSIC_AUDIT/REMEDIATION_CHECKLIST.md
+FORENSIC_AUDIT/consolidation_plan.json
+
+# TEST_EVIDENCE generated artifacts (uploaded as CI artifacts, not committed)
+TEST_EVIDENCE/
