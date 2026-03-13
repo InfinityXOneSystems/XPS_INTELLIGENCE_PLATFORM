@@ -1,0 +1,125 @@
+# Repository Self-Audit Workflow
+#
+# Collects repository settings via the GitHub API and produces two reports:
+#   FORENSIC_AUDIT/repo_settings_report.json  (machine-readable)
+#   FORENSIC_AUDIT/repo_settings_report.md    (human-readable)
+#
+# The reports are:
+#   1. Committed back to the repo (on the triggering branch or main)
+#   2. Uploaded as a workflow artifact (available for 90 days)
+#
+# SECURITY: Secret *values* are never printed. Only metadata (names) is collected.
+#
+# Triggers:
+#   - Schedule: every Sunday at 02:00 UTC
+#   - Manual: workflow_dispatch (run anytime from the Actions tab)
+#   - Push to main: keeps audit report in sync with settings changes
+
+name: repo-self-audit
+
+on:
+  schedule:
+    # Every Sunday at 02:00 UTC
+    - cron: "0 2 * * 0"
+  workflow_dispatch:
+    inputs:
+      output_dir:
+        description: "Output directory for reports (default: FORENSIC_AUDIT)"
+        required: false
+        default: "FORENSIC_AUDIT"
+  push:
+    branches:
+      - main
+    paths:
+      # Re-audit when governance docs change
+      - "_OPS/**"
+      - ".github/workflows/repo-self-audit.yml"
+
+# Minimal required permissions:
+#   contents: write   — to commit the report back to the repo
+#   pull-requests: read — to list open PRs (uses GITHUB_TOKEN automatically)
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  audit:
+    name: Run Repository Self-Audit
+    runs-on: ubuntu-latest
+
+    # Allow the job to be skipped when autonomy is disabled
+    # (Set the AUTONOMY_ENABLED variable to "false" in repo settings to pause)
+    if: vars.AUTONOMY_ENABLED != 'false'
+
+    steps:
+      # -----------------------------------------------------------------------
+      # 1. Checkout
+      # -----------------------------------------------------------------------
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          # Fetch full history so the commit step can push cleanly
+          fetch-depth: 0
+          # Use a PAT with repo read scope for richer audit data when available.
+          # Falls back to GITHUB_TOKEN (which may have reduced visibility for
+          # branch protection / environments on private repos).
+          token: ${{ secrets.AUDIT_PAT || secrets.GITHUB_TOKEN }}
+
+      # -----------------------------------------------------------------------
+      # 2. Set up Python (stdlib only — no pip install required)
+      # -----------------------------------------------------------------------
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # -----------------------------------------------------------------------
+      # 3. Run the audit script
+      # -----------------------------------------------------------------------
+      - name: Run repo self-audit
+        env:
+          GITHUB_TOKEN: ${{ secrets.AUDIT_PAT || secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          AUDIT_OUTPUT_DIR: ${{ inputs.output_dir || 'FORENSIC_AUDIT' }}
+        run: |
+          python _OPS/scripts/repo_self_audit.py
+
+      # -----------------------------------------------------------------------
+      # 4. Upload reports as workflow artifacts
+      #    (always runs, even if the commit step fails)
+      # -----------------------------------------------------------------------
+      - name: Upload reports as artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: repo-settings-report
+          path: |
+            ${{ inputs.output_dir || 'FORENSIC_AUDIT' }}/repo_settings_report.json
+            ${{ inputs.output_dir || 'FORENSIC_AUDIT' }}/repo_settings_report.md
+          retention-days: 90
+          if-no-files-found: warn
+
+      # -----------------------------------------------------------------------
+      # 5. Commit updated reports back to the repository
+      #    Skipped on pull_request events (can't push to forks).
+      # -----------------------------------------------------------------------
+      - name: Commit audit reports
+        if: github.event_name != 'pull_request'
+        run: |
+          git config --global user.name  "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+          OUTPUT_DIR="${{ inputs.output_dir || 'FORENSIC_AUDIT' }}"
+
+          # Stage only the report files — never stage unrelated changes
+          git add "${OUTPUT_DIR}/repo_settings_report.json" \
+                  "${OUTPUT_DIR}/repo_settings_report.md" || true
+
+          # Only commit if there is something new to commit
+          if git diff --cached --quiet; then
+            echo "No changes to report files — skipping commit."
+          else
+            TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+            git commit -m "chore(audit): update repo settings report [${TIMESTAMP}] [skip ci]"
+            git push origin HEAD
+          fi
