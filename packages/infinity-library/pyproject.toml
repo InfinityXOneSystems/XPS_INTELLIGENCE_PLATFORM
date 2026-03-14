@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "infinity-library"
+version = "1.0.0"
+description = "XPS Intelligence Platform - Shared utilities, validators, and policy helpers"
+requires-python = ">=3.12"
+dependencies = [
+    "pydantic>=2.0",
+    "structlog>=24.0",
+    "email-validator>=2.0",
+    "phonenumbers>=8.13",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

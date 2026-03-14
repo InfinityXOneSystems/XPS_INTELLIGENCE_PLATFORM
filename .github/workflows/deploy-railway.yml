@@ -12,11 +12,14 @@ on:
         type: choice
         options: [staging, production]
       service:
-        description: Service to deploy
+        description: |
+          Service to deploy.
+          Use "app" for all-in-one single service (recommended).
+          Use "all" for separate backend/frontend/workers deployment.
         required: true
-        default: all
+        default: app
         type: choice
-        options: [all, backend, frontend]
+        options: [app, all, backend, frontend, workers]
 
 # Minimal permissions — jobs override as needed
 permissions:
@@ -28,15 +31,17 @@ concurrency:
 
 jobs:
   # ────────────────────────────────────────────────────────
-  # Determine environment
+  # Determine environment and services
   # ────────────────────────────────────────────────────────
   setup:
     name: Setup
     runs-on: ubuntu-latest
     outputs:
       environment: ${{ steps.env.outputs.environment }}
+      deploy_app: ${{ steps.services.outputs.app }}
       deploy_backend: ${{ steps.services.outputs.backend }}
       deploy_frontend: ${{ steps.services.outputs.frontend }}
+      deploy_workers: ${{ steps.services.outputs.workers }}
     steps:
       - name: Determine environment
         id: env
@@ -52,7 +57,14 @@ jobs:
       - name: Determine services
         id: services
         run: |
-          SERVICE="${{ github.event.inputs.service || 'all' }}"
+          SERVICE="${{ github.event.inputs.service || 'app' }}"
+          # All-in-one single service (default for push-to-main)
+          if [[ "$SERVICE" == "app" || "$SERVICE" == "all" ]]; then
+            echo "app=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "app=false" >> "$GITHUB_OUTPUT"
+          fi
+          # Separate-services options (legacy multi-service deployment)
           if [[ "$SERVICE" == "all" || "$SERVICE" == "backend" ]]; then
             echo "backend=true" >> "$GITHUB_OUTPUT"
           else
@@ -63,6 +75,97 @@ jobs:
           else
             echo "frontend=false" >> "$GITHUB_OUTPUT"
           fi
+          if [[ "$SERVICE" == "all" || "$SERVICE" == "workers" ]]; then
+            echo "workers=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "workers=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  # ────────────────────────────────────────────────────────
+  # Run Database Migrations
+  # Runs before ANY deploy so schema is ready when the app starts.
+  # Triggered for both all-in-one (app) and separate-services (backend) modes.
+  # ────────────────────────────────────────────────────────
+  migrate-db:
+    name: Run DB Migrations (${{ needs.setup.outputs.environment }})
+    runs-on: ubuntu-latest
+    needs: setup
+    if: >
+      needs.setup.outputs.deploy_backend == 'true' ||
+      needs.setup.outputs.deploy_app == 'true'
+    environment: ${{ needs.setup.outputs.environment }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install backend dependencies
+        run: pip install -r apps/backend/requirements.txt
+
+      - name: Run Alembic migrations
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          if [[ -z "${DATABASE_URL:-}" ]]; then
+            echo "⚠️  DATABASE_URL not set in environment secrets — skipping migrations"
+            echo "    Set DATABASE_URL in the GitHub environment: ${{ needs.setup.outputs.environment }}"
+            exit 0
+          fi
+          cd apps/backend
+          echo "Running: alembic upgrade head"
+          alembic upgrade head
+          echo "✅ Migrations applied successfully"
+
+  # ────────────────────────────────────────────────────────
+  # Deploy All-in-One App (single Railway service — RECOMMENDED)
+  # Builds and deploys the root Dockerfile which runs both the Next.js
+  # frontend and the FastAPI backend in a single container via supervisord.
+  # ────────────────────────────────────────────────────────
+  deploy-app:
+    name: Deploy All-in-One App (${{ needs.setup.outputs.environment }})
+    runs-on: ubuntu-latest
+    needs: [setup, migrate-db]
+    if: needs.setup.outputs.deploy_app == 'true'
+    environment: ${{ needs.setup.outputs.environment }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli
+
+      - name: Deploy all-in-one app to Railway
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          # Ensure the xps-app service exists before deploying.
+          # Create it with: railway service create xps-app
+          # (see DEPLOY.md for full setup instructions)
+          railway up --service xps-app --detach
+          echo "✅ All-in-one app deploy triggered (service: xps-app)"
+
+      - name: App health check
+        env:
+          APP_URL: ${{ secrets.APP_URL }}
+        run: |
+          if [[ -z "${APP_URL:-}" ]]; then
+            echo "⚠️  APP_URL not set — skipping health check"
+            echo "    Add APP_URL to the ${{ needs.setup.outputs.environment }} environment secrets"
+            exit 0
+          fi
+          echo "Waiting for app to be healthy at ${APP_URL} ..."
+          for i in {1..18}; do
+            if curl -sf "${APP_URL}" >/dev/null 2>&1; then
+              echo "✅ App healthy"
+              exit 0
+            fi
+            echo "Attempt $i/18 — not ready yet, waiting 10s..."
+            sleep 10
+          done
+          echo "❌ App health check timed out after 3 minutes"
+          exit 1
 
   # ────────────────────────────────────────────────────────
   # Deploy Backend
@@ -70,7 +173,7 @@ jobs:
   deploy-backend:
     name: Deploy Backend (${{ needs.setup.outputs.environment }})
     runs-on: ubuntu-latest
-    needs: setup
+    needs: [setup, migrate-db]
     if: needs.setup.outputs.deploy_backend == 'true'
     environment: ${{ needs.setup.outputs.environment }}
     steps:
@@ -83,32 +186,30 @@ jobs:
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
         run: |
-          if [[ -f "apps/backend/railway.json" ]]; then
-            railway up --service xps-backend --detach
-          else
-            echo "⚠️  No backend railway.json yet — skipping deploy (foundation phase)"
-          fi
+          railway up --service xps-backend --detach
+          echo "✅ Backend deploy triggered"
 
       - name: Backend health check
         env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
           BACKEND_URL: ${{ secrets.BACKEND_URL }}
         run: |
-          if [[ -n "$BACKEND_URL" ]]; then
-            echo "Waiting for backend to be healthy..."
-            for i in {1..12}; do
-              if curl -sf "${BACKEND_URL}/health" >/dev/null 2>&1; then
-                echo "✅ Backend healthy"
-                exit 0
-              fi
-              echo "Attempt $i/12 failed, waiting 10s..."
-              sleep 10
-            done
-            echo "❌ Backend health check failed"
-            exit 1
-          else
-            echo "⚠️  BACKEND_URL not set — skipping health check (foundation phase)"
+          if [[ -z "${BACKEND_URL:-}" ]]; then
+            echo "⚠️  BACKEND_URL not set — skipping health check"
+            echo "    Add BACKEND_URL to the ${{ needs.setup.outputs.environment }} environment secrets"
+            exit 0
           fi
+          echo "Waiting for backend to be healthy at ${BACKEND_URL}/health ..."
+          for i in {1..18}; do
+            RESPONSE=$(curl -sf "${BACKEND_URL}/health" 2>/dev/null || true)
+            if [[ -n "$RESPONSE" ]]; then
+              echo "✅ Backend healthy: $RESPONSE"
+              exit 0
+            fi
+            echo "Attempt $i/18 — not ready yet, waiting 10s..."
+            sleep 10
+          done
+          echo "❌ Backend health check timed out after 3 minutes"
+          exit 1
 
   # ────────────────────────────────────────────────────────
   # Deploy Frontend
@@ -129,31 +230,51 @@ jobs:
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
         run: |
-          if [[ -f "apps/frontend/railway.json" ]]; then
-            railway up --service xps-frontend --detach
-          else
-            echo "⚠️  No frontend railway.json yet — skipping deploy (foundation phase)"
-          fi
+          railway up --service xps-frontend --detach
+          echo "✅ Frontend deploy triggered"
 
       - name: Frontend health check
         env:
           FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
         run: |
-          if [[ -n "$FRONTEND_URL" ]]; then
-            echo "Waiting for frontend to be healthy..."
-            for i in {1..12}; do
-              if curl -sf "${FRONTEND_URL}" >/dev/null 2>&1; then
-                echo "✅ Frontend healthy"
-                exit 0
-              fi
-              echo "Attempt $i/12 failed, waiting 10s..."
-              sleep 10
-            done
-            echo "❌ Frontend health check failed"
-            exit 1
-          else
-            echo "⚠️  FRONTEND_URL not set — skipping health check (foundation phase)"
+          if [[ -z "${FRONTEND_URL:-}" ]]; then
+            echo "⚠️  FRONTEND_URL not set — skipping health check"
+            echo "    Add FRONTEND_URL to the ${{ needs.setup.outputs.environment }} environment secrets"
+            exit 0
           fi
+          echo "Waiting for frontend to be healthy at ${FRONTEND_URL} ..."
+          for i in {1..18}; do
+            if curl -sf "${FRONTEND_URL}" >/dev/null 2>&1; then
+              echo "✅ Frontend healthy"
+              exit 0
+            fi
+            echo "Attempt $i/18 — not ready yet, waiting 10s..."
+            sleep 10
+          done
+          echo "❌ Frontend health check timed out after 3 minutes"
+          exit 1
+
+  # ────────────────────────────────────────────────────────
+  # Deploy Workers
+  # ────────────────────────────────────────────────────────
+  deploy-workers:
+    name: Deploy Workers (${{ needs.setup.outputs.environment }})
+    runs-on: ubuntu-latest
+    needs: [setup, deploy-backend]
+    if: needs.setup.outputs.deploy_workers == 'true'
+    environment: ${{ needs.setup.outputs.environment }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli
+
+      - name: Deploy default worker
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          railway up --service xps-worker-default --detach
+          echo "✅ Default worker deploy triggered"
 
   # ────────────────────────────────────────────────────────
   # Deploy Summary
@@ -161,14 +282,26 @@ jobs:
   deploy-summary:
     name: Deploy Summary
     runs-on: ubuntu-latest
-    needs: [setup, deploy-backend, deploy-frontend]
+    needs: [setup, migrate-db, deploy-app, deploy-backend, deploy-frontend, deploy-workers]
     if: always()
     steps:
       - name: Summary
         run: |
           echo "## Deployment Summary" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Service | Status |" >> "$GITHUB_STEP_SUMMARY"
-          echo "|---------|--------|" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Backend | ${{ needs.deploy-backend.result }} |" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Frontend | ${{ needs.deploy-frontend.result }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Step | Status |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|------|--------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| DB Migrations | ${{ needs.migrate-db.result }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| All-in-One App | ${{ needs.deploy-app.result }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Backend (separate) | ${{ needs.deploy-backend.result }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Frontend (separate) | ${{ needs.deploy-frontend.result }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Workers (separate) | ${{ needs.deploy-workers.result }} |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Environment | ${{ needs.setup.outputs.environment }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "### Required GitHub Secrets (per environment)" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Secret | Used By | Description |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|--------|---------|-------------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| \`RAILWAY_TOKEN\` | All | Railway API token |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| \`DATABASE_URL\` | Migrations | Railway Postgres URL |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| \`APP_URL\` | Health check | All-in-one app Railway URL |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| \`BACKEND_URL\` | Health check | Separate backend Railway URL |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| \`FRONTEND_URL\` | Health check | Separate frontend Railway URL |" >> "$GITHUB_STEP_SUMMARY"

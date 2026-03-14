@@ -79,6 +79,43 @@ export default function LegacyDashboardPage() {
         background: '#0a0e1a',
       }}
     >
+      {/* Top navigation bar — additive only, zero aesthetic drift */}
+      <nav
+        style={{
+          display: 'flex',
+          gap: 16,
+          padding: '6px 16px',
+          background: 'rgba(15,23,42,0.95)',
+          borderBottom: '1px solid rgba(99,102,241,0.2)',
+          flexShrink: 0,
+          alignItems: 'center',
+        }}
+      >
+        <a
+          href="/workspace"
+          style={{
+            fontSize: 12,
+            color: '#6366f1',
+            textDecoration: 'none',
+            fontFamily: 'system-ui, -apple-system, sans-serif',
+            fontWeight: 600,
+            letterSpacing: 0.3,
+          }}
+        >
+          ⚡ Workspace
+        </a>
+        <a
+          href="/scraper"
+          style={{
+            fontSize: 12,
+            color: '#94a3b8',
+            textDecoration: 'none',
+            fontFamily: 'system-ui, -apple-system, sans-serif',
+          }}
+        >
+          🕷️ Scraper
+        </a>
+      </nav>
       <iframe
         data-testid="legacy-dashboard-iframe"
         src={LEGACY_URL}
