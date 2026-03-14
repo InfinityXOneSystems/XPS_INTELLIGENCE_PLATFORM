@@ -1,0 +1,55 @@
+# XPS Intelligence Platform — Docker build context exclusions
+# Prevents large/unnecessary directories from being sent to the Docker daemon.
+
+# Python caches and build artifacts
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.eggs/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Node build artifacts
+node_modules/
+apps/frontend/.next/
+apps/frontend/out/
+apps/frontend/node_modules/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+apps/backend/.env
+apps/frontend/.env.local
+
+# Test evidence and audit outputs
+TEST_EVIDENCE/
+FORENSIC_AUDIT/
+
+# Editor and OS files
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Git
+.git/
+.gitignore
+
+# Temporary files
+/tmp/
+*.log

@@ -14,8 +14,8 @@ class Settings(BaseSettings):
     AUTONOMY_ENABLED: bool = False
     SCRAPER_AUTORUN_ENABLED: bool = False
 
-    LLM_PROVIDER: str = "copilot"
-    LLM_SECONDARY_PROVIDER: str = "groq"
+    LLM_PROVIDER: str = "groq"
+    LLM_SECONDARY_PROVIDER: str = "echo"
     GROQ_API_KEY: str = ""
 
     SANDBOX_NETWORK_MODE: str = "restricted"
