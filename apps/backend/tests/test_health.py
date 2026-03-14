@@ -12,9 +12,15 @@ async def test_health():
         resp = await ac.get("/health")
     assert resp.status_code == 200
     data = resp.json()
-    assert data["status"] == "ok"
+    # status is "ok" when DB+Redis are available, "degraded" otherwise.
+    # The endpoint always returns HTTP 200 so Railway/load-balancers keep
+    # the service alive even during transient connectivity issues.
+    assert data["status"] in ("ok", "degraded")
     assert data["service"] == "xps-backend"
     assert data["version"] == "1.0.0"
+    assert "checks" in data
+    assert "database" in data["checks"]
+    assert "redis" in data["checks"]
 
 
 @pytest.mark.asyncio
@@ -24,4 +30,6 @@ async def test_api_health():
     ) as ac:
         resp = await ac.get("/api/v1/health")
     assert resp.status_code == 200
-    assert resp.json()["status"] == "ok"
+    data = resp.json()
+    assert data["status"] in ("ok", "degraded")
+    assert "checks" in data

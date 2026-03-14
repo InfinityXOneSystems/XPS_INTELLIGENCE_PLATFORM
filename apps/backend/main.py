@@ -62,7 +62,12 @@ async def general_exception_handler(request: Request, exc: Exception):
 
 @app.get("/health", tags=["health"])
 async def health():
-    return {"status": "ok", "service": "xps-backend", "version": "1.0.0"}
+    """Root health check — mirrors /api/v1/health.
+    Always returns HTTP 200.  Includes DB and Redis status in the body.
+    """
+    from apps.backend.api.routes.health import health_check
+
+    return await health_check()
 
 
 app.include_router(api_router, prefix="/api/v1")

@@ -43,8 +43,10 @@ RUN if [ "${INSTALL_PLAYWRIGHT:-false}" = "true" ]; then \
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONPATH=/app \
     PORT=8000
 
 EXPOSE 8000
 
-CMD ["uvicorn", "apps.backend.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Shell form so Railway's $PORT env var is interpolated at runtime
+CMD uvicorn apps.backend.main:app --host 0.0.0.0 --port "${PORT:-8000}"

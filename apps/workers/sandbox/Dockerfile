@@ -14,6 +14,7 @@ COPY . .
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONPATH=/app \
     SANDBOX_NETWORK_MODE=restricted
 
 CMD ["python", "-m", "apps.workers.sandbox.runner"]

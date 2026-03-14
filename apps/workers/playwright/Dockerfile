@@ -22,6 +22,7 @@ RUN python -m playwright install chromium
 COPY . .
 
 ENV PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONPATH=/app
 
 CMD ["python", "-m", "apps.workers.playwright.worker"]
