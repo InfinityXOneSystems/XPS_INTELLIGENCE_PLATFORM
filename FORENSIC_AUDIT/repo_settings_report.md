@@ -1,7 +1,7 @@
 # Repository Settings Audit Report
 
 **Repository:** `InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM`  
-**Generated:** 2026-03-13T21:47:19.363670+00:00  
+**Generated:** 2026-03-15T04:34:10.981120+00:00  
 **Default branch:** `main`
 
 ---
@@ -25,9 +25,12 @@
 
 ## Branches
 
-**Total branches:** 3
+**Total branches:** 6
 
 - `XPS_INTELLIGENCE_PLATFORM_PAGE`
+- `copilot/consolidate-all-source-repos`
+- `copilot/update-scraper-architecture`
+- `copilot/update-shadow-scraper-compliance-defaults`
 - `gh-pages`
 - `main`
 
@@ -62,13 +65,16 @@
 ### Environment: `github-pages`
 - Rule type: `branch_policy`
 
-### Environment: `production`
-- No protection rules.
-
-### Environment: `XPS Intelligence / production`
-- No protection rules.
-
 ### Environment: `XPS INTELLIGENCE PLATFORM / production`
+- No protection rules.
+
+### Environment: `XPS INTELLIGENCE PLATFORM / XPS_INTELLIGENCE_PLATFORM-pr-17`
+- No protection rules.
+
+### Environment: `XPS INTELLIGENCE PLATFORM / XPS_INTELLIGENCE_PLATFORM-pr-18`
+- No protection rules.
+
+### Environment: `XPS INTELLIGENCE PLATFORM / XPS_INTELLIGENCE_PLATFORM-pr-19`
 - No protection rules.
 
 ### Environment: `XPS_INTELLIGENCE_PLATFORM`
@@ -90,7 +96,13 @@
 
 ## Open Pull Requests
 
-_No open pull requests._
+**Count:** 3
+
+| # | Title | Author | Draft | Head → Base | Created |
+| - | ----- | ------ | ----- | ----------- | ------- |
+| [19](https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/19) | feat(scraper): Shadow Scraper compliance defaults and parallelism caps (operator directive 2026-03-13) | Copilot | ✏️ draft | `copilot/update-shadow-scraper-compliance-defaults` → `main` | 2026-03-13 |
+| [18](https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/18) | feat: Shadow Scraper architecture — full-web access, denylist model, safety rails | Copilot | ✏️ draft | `copilot/update-scraper-architecture` → `main` | 2026-03-13 |
+| [17](https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/17) | feat: all-in-one Railway deployment — single container, Postgres+Redis wired, Docker build crash fixed | Copilot | ✏️ draft | `copilot/consolidate-all-source-repos` → `main` | 2026-03-13 |
 
 ---
 

@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "generated_at": "2026-03-13T21:47:19.363670+00:00",
+  "generated_at": "2026-03-15T04:34:10.981120+00:00",
   "repository": "InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM",
   "repo_info": {
     "default_branch": "main",
@@ -18,6 +18,9 @@
   "default_branch": "main",
   "branches": [
     "XPS_INTELLIGENCE_PLATFORM_PAGE",
+    "copilot/consolidate-all-source-repos",
+    "copilot/update-scraper-architecture",
+    "copilot/update-shadow-scraper-compliance-defaults",
     "gh-pages",
     "main"
   ],
@@ -55,15 +58,19 @@
       ]
     },
     {
-      "name": "production",
-      "protection_rules": []
-    },
-    {
-      "name": "XPS Intelligence / production",
-      "protection_rules": []
-    },
-    {
       "name": "XPS INTELLIGENCE PLATFORM / production",
+      "protection_rules": []
+    },
+    {
+      "name": "XPS INTELLIGENCE PLATFORM / XPS_INTELLIGENCE_PLATFORM-pr-17",
+      "protection_rules": []
+    },
+    {
+      "name": "XPS INTELLIGENCE PLATFORM / XPS_INTELLIGENCE_PLATFORM-pr-18",
+      "protection_rules": []
+    },
+    {
+      "name": "XPS INTELLIGENCE PLATFORM / XPS_INTELLIGENCE_PLATFORM-pr-19",
       "protection_rules": []
     },
     {
@@ -77,5 +84,42 @@
   ],
   "actions_secrets_names_only": "unavailable",
   "actions_variables_names_only": "unavailable",
-  "open_pull_requests": []
+  "open_pull_requests": [
+    {
+      "number": 19,
+      "title": "feat(scraper): Shadow Scraper compliance defaults and parallelism caps (operator directive 2026-03-13)",
+      "state": "open",
+      "draft": true,
+      "created_at": "2026-03-13T23:10:22Z",
+      "updated_at": "2026-03-13T23:23:11Z",
+      "head_ref": "copilot/update-shadow-scraper-compliance-defaults",
+      "base_ref": "main",
+      "author": "Copilot",
+      "url": "https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/19"
+    },
+    {
+      "number": 18,
+      "title": "feat: Shadow Scraper architecture \u2014 full-web access, denylist model, safety rails",
+      "state": "open",
+      "draft": true,
+      "created_at": "2026-03-13T22:23:13Z",
+      "updated_at": "2026-03-13T22:34:00Z",
+      "head_ref": "copilot/update-scraper-architecture",
+      "base_ref": "main",
+      "author": "Copilot",
+      "url": "https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/18"
+    },
+    {
+      "number": 17,
+      "title": "feat: all-in-one Railway deployment \u2014 single container, Postgres+Redis wired, Docker build crash fixed",
+      "state": "open",
+      "draft": true,
+      "created_at": "2026-03-13T22:04:34Z",
+      "updated_at": "2026-03-14T18:58:59Z",
+      "head_ref": "copilot/consolidate-all-source-repos",
+      "base_ref": "main",
+      "author": "Copilot",
+      "url": "https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/17"
+    }
+  ]
 }
