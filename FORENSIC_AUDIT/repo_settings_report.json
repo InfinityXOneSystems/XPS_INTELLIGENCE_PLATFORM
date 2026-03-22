@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "generated_at": "2026-03-15T04:34:10.981120+00:00",
+  "generated_at": "2026-03-22T03:08:14.403265+00:00",
   "repository": "InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM",
   "repo_info": {
     "default_branch": "main",
@@ -21,6 +21,16 @@
     "copilot/consolidate-all-source-repos",
     "copilot/update-scraper-architecture",
     "copilot/update-shadow-scraper-compliance-defaults",
+    "dependabot/github_actions/actions/download-artifact-8",
+    "dependabot/github_actions/actions/upload-artifact-7",
+    "dependabot/npm_and_yarn/apps/frontend/eslint-10.0.3",
+    "dependabot/npm_and_yarn/apps/frontend/eslint-config-next-16.1.6",
+    "dependabot/npm_and_yarn/apps/frontend/flatted-3.4.2",
+    "dependabot/npm_and_yarn/apps/frontend/multi-c6586c7467",
+    "dependabot/npm_and_yarn/apps/frontend/multi-d88693a43a",
+    "dependabot/npm_and_yarn/apps/frontend/next-15.5.14",
+    "dependabot/npm_and_yarn/apps/frontend/next-16.1.6",
+    "dependabot/npm_and_yarn/apps/frontend/types/node-25.5.0",
     "gh-pages",
     "main"
   ],
@@ -58,6 +68,10 @@
       ]
     },
     {
+      "name": "Intelligence Nexus / production",
+      "protection_rules": []
+    },
+    {
       "name": "XPS INTELLIGENCE PLATFORM / production",
       "protection_rules": []
     },
@@ -74,6 +88,38 @@
       "protection_rules": []
     },
     {
+      "name": "XPS INTELLIGENCE PLATFORM / XPS_INTELLIGENCE_PLATFORM-pr-20",
+      "protection_rules": []
+    },
+    {
+      "name": "XPS INTELLIGENCE PLATFORM / XPS_INTELLIGENCE_PLATFORM-pr-21",
+      "protection_rules": []
+    },
+    {
+      "name": "XPS INTELLIGENCE PLATFORM / XPS_INTELLIGENCE_PLATFORM-pr-22",
+      "protection_rules": []
+    },
+    {
+      "name": "XPS INTELLIGENCE PLATFORM / XPS_INTELLIGENCE_PLATFORM-pr-23",
+      "protection_rules": []
+    },
+    {
+      "name": "XPS INTELLIGENCE PLATFORM / XPS_INTELLIGENCE_PLATFORM-pr-24",
+      "protection_rules": []
+    },
+    {
+      "name": "XPS INTELLIGENCE PLATFORM / XPS_INTELLIGENCE_PLATFORM-pr-25",
+      "protection_rules": []
+    },
+    {
+      "name": "XPS INTELLIGENCE PLATFORM / XPS_INTELLIGENCE_PLATFORM-pr-26",
+      "protection_rules": []
+    },
+    {
+      "name": "XPS INTELLIGENCE PLATFORM / XPS_INTELLIGENCE_PLATFORM-pr-27",
+      "protection_rules": []
+    },
+    {
       "name": "XPS_INTELLIGENCE_PLATFORM",
       "protection_rules": [
         {
@@ -86,12 +132,132 @@
   "actions_variables_names_only": "unavailable",
   "open_pull_requests": [
     {
+      "number": 29,
+      "title": "chore(deps-frontend): bump next from 15.5.10 to 15.5.14 in /apps/frontend",
+      "state": "open",
+      "draft": false,
+      "created_at": "2026-03-21T23:46:23Z",
+      "updated_at": "2026-03-21T23:46:38Z",
+      "head_ref": "dependabot/npm_and_yarn/apps/frontend/next-15.5.14",
+      "base_ref": "main",
+      "author": "dependabot[bot]",
+      "url": "https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/29"
+    },
+    {
+      "number": 28,
+      "title": "chore(deps-frontend): bump flatted from 3.4.1 to 3.4.2 in /apps/frontend",
+      "state": "open",
+      "draft": false,
+      "created_at": "2026-03-21T20:29:09Z",
+      "updated_at": "2026-03-21T20:29:21Z",
+      "head_ref": "dependabot/npm_and_yarn/apps/frontend/flatted-3.4.2",
+      "base_ref": "main",
+      "author": "dependabot[bot]",
+      "url": "https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/28"
+    },
+    {
+      "number": 27,
+      "title": "ci(deps): bump actions/download-artifact from 4 to 8",
+      "state": "open",
+      "draft": false,
+      "created_at": "2026-03-16T06:18:29Z",
+      "updated_at": "2026-03-18T23:25:36Z",
+      "head_ref": "dependabot/github_actions/actions/download-artifact-8",
+      "base_ref": "main",
+      "author": "dependabot[bot]",
+      "url": "https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/27"
+    },
+    {
+      "number": 26,
+      "title": "chore(deps-frontend): bump eslint-config-next from 15.5.10 to 16.1.6 in /apps/frontend",
+      "state": "open",
+      "draft": false,
+      "created_at": "2026-03-16T06:18:25Z",
+      "updated_at": "2026-03-18T23:26:02Z",
+      "head_ref": "dependabot/npm_and_yarn/apps/frontend/eslint-config-next-16.1.6",
+      "base_ref": "main",
+      "author": "dependabot[bot]",
+      "url": "https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/26"
+    },
+    {
+      "number": 25,
+      "title": "ci(deps): bump actions/upload-artifact from 4 to 7",
+      "state": "open",
+      "draft": false,
+      "created_at": "2026-03-16T06:18:23Z",
+      "updated_at": "2026-03-18T23:22:57Z",
+      "head_ref": "dependabot/github_actions/actions/upload-artifact-7",
+      "base_ref": "main",
+      "author": "dependabot[bot]",
+      "url": "https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/25"
+    },
+    {
+      "number": 24,
+      "title": "chore(deps-frontend): bump react and @types/react in /apps/frontend",
+      "state": "open",
+      "draft": false,
+      "created_at": "2026-03-16T06:18:11Z",
+      "updated_at": "2026-03-18T23:24:41Z",
+      "head_ref": "dependabot/npm_and_yarn/apps/frontend/multi-d88693a43a",
+      "base_ref": "main",
+      "author": "dependabot[bot]",
+      "url": "https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/24"
+    },
+    {
+      "number": 23,
+      "title": "chore(deps-frontend): bump react-dom and @types/react-dom in /apps/frontend",
+      "state": "open",
+      "draft": false,
+      "created_at": "2026-03-16T06:18:01Z",
+      "updated_at": "2026-03-18T23:23:16Z",
+      "head_ref": "dependabot/npm_and_yarn/apps/frontend/multi-c6586c7467",
+      "base_ref": "main",
+      "author": "dependabot[bot]",
+      "url": "https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/23"
+    },
+    {
+      "number": 22,
+      "title": "chore(deps-frontend): bump eslint from 8.57.1 to 10.0.3 in /apps/frontend",
+      "state": "open",
+      "draft": false,
+      "created_at": "2026-03-16T06:17:50Z",
+      "updated_at": "2026-03-18T23:24:01Z",
+      "head_ref": "dependabot/npm_and_yarn/apps/frontend/eslint-10.0.3",
+      "base_ref": "main",
+      "author": "dependabot[bot]",
+      "url": "https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/22"
+    },
+    {
+      "number": 21,
+      "title": "chore(deps-frontend): bump @types/node from 20.19.37 to 25.5.0 in /apps/frontend",
+      "state": "open",
+      "draft": false,
+      "created_at": "2026-03-16T06:17:40Z",
+      "updated_at": "2026-03-18T23:24:24Z",
+      "head_ref": "dependabot/npm_and_yarn/apps/frontend/types/node-25.5.0",
+      "base_ref": "main",
+      "author": "dependabot[bot]",
+      "url": "https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/21"
+    },
+    {
+      "number": 20,
+      "title": "chore(deps-frontend): bump next from 15.5.10 to 16.1.6 in /apps/frontend",
+      "state": "open",
+      "draft": false,
+      "created_at": "2026-03-16T06:17:34Z",
+      "updated_at": "2026-03-18T23:23:32Z",
+      "head_ref": "dependabot/npm_and_yarn/apps/frontend/next-16.1.6",
+      "base_ref": "main",
+      "author": "dependabot[bot]",
+      "url": "https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/20"
+    },
+    {
       "number": 19,
       "title": "feat(scraper): Shadow Scraper compliance defaults and parallelism caps (operator directive 2026-03-13)",
       "state": "open",
       "draft": true,
       "created_at": "2026-03-13T23:10:22Z",
-      "updated_at": "2026-03-13T23:23:11Z",
+      "updated_at": "2026-03-18T23:25:18Z",
       "head_ref": "copilot/update-shadow-scraper-compliance-defaults",
       "base_ref": "main",
       "author": "Copilot",
@@ -103,7 +269,7 @@
       "state": "open",
       "draft": true,
       "created_at": "2026-03-13T22:23:13Z",
-      "updated_at": "2026-03-13T22:34:00Z",
+      "updated_at": "2026-03-18T23:24:58Z",
       "head_ref": "copilot/update-scraper-architecture",
       "base_ref": "main",
       "author": "Copilot",
@@ -115,7 +281,7 @@
       "state": "open",
       "draft": true,
       "created_at": "2026-03-13T22:04:34Z",
-      "updated_at": "2026-03-14T18:58:59Z",
+      "updated_at": "2026-03-18T23:22:39Z",
       "head_ref": "copilot/consolidate-all-source-repos",
       "base_ref": "main",
       "author": "Copilot",
