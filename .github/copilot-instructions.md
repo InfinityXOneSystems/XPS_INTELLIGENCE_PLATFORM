@@ -72,6 +72,33 @@ Consolidate and perfect these source repositories into this single mono-repo:
       stored in `TEST_EVIDENCE/`.
 - [ ] Hardened: secrets hygiene, RBAC/capabilities, audit trails, backups plan.
 
+## Scraper Architecture
+
+### Shadow Scraper — Primary Ingestion Method
+
+- **Shadow Scraper is the ONLY approved ingestion method** for all lead and web
+  data. It uses a headless Playwright browser with robust anti-bot handling.
+- **No domain allowlist is required.** The scraper may access any public web
+  resource unless it appears on the domain denylist.
+- **Safety rails are mandatory** (see `_OPS/POLICY/TAP.md §Scraping Policy`):
+  - `SCRAPER_RESPECT_ROBOTS_TXT` toggle (default: `true`)
+  - Domain denylist at `packages/agents/scraper_config.json` → `denylist`
+  - Maximum request budget per run: `SCRAPER_MAX_REQUESTS_PER_RUN` (default: 200)
+  - Concurrency cap: `SCRAPER_MAX_CONCURRENCY` (default: 3)
+  - `SCRAPER_COMPLIANCE_MODE` flag for heightened rate-limit enforcement
+- Every run must be idempotent, bounded, and logged to audit trail.
+- CI proof job uses Shadow Scraper against a deterministic set of stable public
+  pages — no allowlist needed, no flaky results.
+- The 2-hour autonomy cycle enforces request budgets and must never exceed caps.
+
+### Shadow Scraper Rules (MANDATORY)
+
+- The Shadow Scraper MUST be used for all lead and web data.
+- Fake, sample, or mock lead data is strictly prohibited.
+- No paid lead-data APIs may be introduced.
+- API-based scrapers are secondary only (Shadow Scraper takes precedence).
+- Never expose scraped PII to the frontend without normalization + scoring.
+
 ## Absolute Rules
 
 - Do NOT delete features. Deprecate behind flags if necessary.
@@ -83,6 +110,9 @@ Consolidate and perfect these source repositories into this single mono-repo:
   workers.
 - Do NOT create parallel orchestrators: the backend runtime controller is the
   single authority for execution.
+- Do NOT introduce a domain allowlist for the scraper. Use the denylist model.
+- Do NOT exceed `SCRAPER_MAX_REQUESTS_PER_RUN` or `SCRAPER_MAX_CONCURRENCY` in
+  any single run.
 
 ## Required Checks Before Merge
 

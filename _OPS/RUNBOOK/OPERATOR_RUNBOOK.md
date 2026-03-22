@@ -90,9 +90,64 @@ REDIS_URL=<railway-redis-connection-string>
 GROQ_API_KEY=<your-groq-api-key>
 LLM_PROVIDER=groq
 SCRAPER_ENABLED=true
+SCRAPER_RESPECT_ROBOTS_TXT=true
+SCRAPER_MAX_REQUESTS_PER_RUN=200
+SCRAPER_MAX_CONCURRENCY=3
+SCRAPER_MIN_DELAY_MS=1000
+SCRAPER_COMPLIANCE_MODE=true
 AUTONOMY_ENABLED=true
 ENVIRONMENT=production
 ```
+
+## Shadow Scraper Operation
+
+### Overview
+
+The Shadow Scraper is the primary ingestion method. It uses a headless Playwright
+browser with anti-bot evasion, user-agent rotation, and configurable delays.
+No domain allowlist is required; a denylist model is used instead.
+
+### Safety Rail Configuration
+
+All safety rail defaults live in `packages/agents/scraper_config.json`.
+Override at runtime via Railway environment variables:
+
+| Variable | Default | Description |
+|---|---|---|
+| `SCRAPER_RESPECT_ROBOTS_TXT` | `true` | Respect robots.txt directives |
+| `SCRAPER_MAX_REQUESTS_PER_RUN` | `200` | Hard stop after N HTTP requests per run |
+| `SCRAPER_MAX_CONCURRENCY` | `3` | Max parallel Playwright pages |
+| `SCRAPER_MIN_DELAY_MS` | `1000` | Min ms between requests to the same domain |
+| `SCRAPER_COMPLIANCE_MODE` | `true` | Doubles all delay floors; stricter rate limiting |
+
+### Managing the Domain Denylist
+
+To block a domain permanently:
+
+1. Edit `packages/agents/scraper_config.json` → add to the `denylist` array.
+2. Open a PR. The change takes effect after merge to `main`.
+
+Denylist entries accept exact hostnames (e.g., `"example.com"`) or wildcard
+subdomains prefixed with `*.` (e.g., `"*.private-corp.internal"`).
+
+### Running a Manual Scrape
+
+1. Navigate to **Actions → Shadow Scraper Proof** → **Run workflow**.
+2. Optionally set `target_urls` input (newline-separated URLs).
+3. Leave blank to use the default deterministic target set in the workflow.
+4. Review the uploaded `shadow-scraper-proof-*` artifact for run results.
+
+### 2-Hour Autonomy Cycle
+
+The `audit.yml` schedule triggers the scrape cycle every 2 hours. The run is
+idempotent: duplicate URLs are deduplicated by content hash at ingest time.
+If `SCRAPER_MAX_REQUESTS_PER_RUN` is reached, the run stops cleanly and
+commits partial results. No data is lost.
+
+### Disabling the Scraper
+
+- Immediate stop: set `SCRAPER_ENABLED=false` in Railway → all services.
+- Full disable: also disable the 2-hour schedule in GitHub Actions.
 
 ## Emergency Procedures
 
