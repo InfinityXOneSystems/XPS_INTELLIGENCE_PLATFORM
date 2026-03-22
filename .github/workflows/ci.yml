@@ -161,3 +161,59 @@ jobs:
           fi
 
           echo "✅ No VITE_ secret patterns detected."
+
+  build-frontend:
+    name: Build Frontend
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/frontend
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: apps/frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npm run type-check
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+
+  lint-backend:
+    name: Lint Backend (Python)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install linting tools
+        run: pip install flake8 black isort
+
+      - name: Check formatting (black)
+        run: black --check apps/backend/ packages/infinity-library/
+
+      - name: Check import order (isort)
+        run: isort --check-only apps/backend/ packages/infinity-library/
+
+      - name: Lint (flake8)
+        run: |
+          flake8 apps/backend/ packages/infinity-library/ \
+            --max-line-length=120 \
+            --exclude=apps/backend/tests/,__pycache__

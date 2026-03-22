@@ -60,17 +60,129 @@ Consolidate and perfect these source repositories into this single mono-repo:
 - `InfinityXOneSystems/manus-core-system`
 - `InfinityXOneSystems/vizual-x-admin-control-plane`
 
+## Monorepo Layout (enforce this structure)
+
+```text
+apps/
+  frontend/          Next.js 15 App Router (aesthetic locked — additive only)
+  backend/           FastAPI runtime controller (single execution authority)
+  workers/
+    default/         Celery task worker (scrape, ingest, normalize, score)
+    playwright/      Browser automation worker
+    sandbox/         Capability-gated code execution runner
+packages/
+  contracts/         TypeScript command+artifact schemas (@xps/contracts)
+  infinity-library/  Python shared validators, logging, policy (pip package)
+_OPS/
+  ARCHITECTURE/      SYSTEM_TOPOLOGY.md
+  POLICY/            TAP.md
+  RUNBOOK/           OPERATOR_RUNBOOK.md
+  scripts/           validate_repo_settings.sh, setup_railway_services.sh, etc.
+FORENSIC_AUDIT/      Audit reports (auto-generated; never manually edit)
+TEST_EVIDENCE/       CI proof artifacts (snapshots, logs, lead records)
+```
+
+## Infrastructure (read-only reference — never hardcode values)
+
+### Railway Project
+
+- **Project ID:** `139ef8de-840d-4110-aa21-fe3eeed7c469`
+- **Token secret name:** `RAILWAY_TOKEN` (already installed in GitHub Actions)
+- Services to deploy: `xps-backend`, `xps-frontend`, `xps-worker-default`
+
+### Railway Postgres (provisioned)
+
+- Domain: `postgres-production-5596.up.railway.app:5432`
+- TCP Proxy: `junction.proxy.rlwy.net:42332`
+- Read via env var: `DATABASE_URL`
+
+### Railway Redis (provisioned)
+
+- Proxy: `tramway.proxy.rlwy.net:22806`
+- Domain: `redis-production-200b.up.railway.app:6379`
+- Read via env var: `REDIS_URL`
+
+### Object Storage (provisioned)
+
+- Endpoint: `https://t3.storageapi.dev`
+- Bucket: `stocked-organizer-khf6nyu`
+- Read via env vars: `OBJECT_STORAGE_ENDPOINT`, `OBJECT_STORAGE_BUCKET`,
+  `OBJECT_STORAGE_ACCESS_KEY`, `OBJECT_STORAGE_SECRET_KEY`
+
 ## Definition of Done
 
-- [ ] Mono-repo boots locally with one command.
-- [ ] Railway deploys backend and workers automatically.
-- [ ] Scheduled 2-hour cycle runs scraping, ingest, normalize, and score.
-- [ ] Frontend live-edit UX: center editing screen renders NL and artifacts
-      (images, video, music, templates, charts, leads).
-- [ ] Universal scraper supports manual and scheduled toggle with robust settings UI.
-- [ ] Full test suite: backend, frontend, e2e (Playwright), and snapshot proof
-      stored in `TEST_EVIDENCE/`.
-- [ ] Hardened: secrets hygiene, RBAC/capabilities, audit trails, backups plan.
+- [ ] Mono-repo boots locally with one command (`./scripts/dev.sh` or
+      `docker-compose up`).
+- [ ] Railway deploys backend, frontend, and workers automatically on push to
+      `main`.
+- [ ] Scheduled 2-hour cycle (`autonomy-scheduler.yml`) triggers
+      `/api/v1/autonomy/cycle` and runs scraping → ingest → normalize → score.
+- [ ] Feature flags respected: `AUTONOMY_ENABLED`, `SCRAPER_AUTORUN_ENABLED`.
+- [ ] Frontend `/workspace` renders NL input + artifact grid (leads, charts,
+      text, images, web_browse, templates, system output).
+- [ ] Frontend `/scraper` settings page has autorun toggle + manual job submit.
+- [ ] Frontend `/legacy-dashboard` iframe bridge works with
+      `LEGACY_DASHBOARD_MODE=iframe` (default).
+- [ ] Universal scraper: POST `/api/v1/scraper/jobs` + background execution.
+- [ ] Lead pipeline: ingest → normalize → score with idempotency + dedupe.
+- [ ] Leads stored in Postgres; artifacts stored in object storage.
+- [ ] LLM routing: POST `/api/v1/llm/chat` → Groq (primary) → echo (fallback).
+  API keys never exposed to frontend.
+- [ ] Full test suite green: 17 backend unit tests, 19 infinity-library tests,
+      Playwright E2E snapshots, frontend build.
+- [ ] CI checks all pass: lint-markdown, lint-yaml, check-repo-structure,
+      check-no-vite-secrets, build-frontend, lint-backend.
+- [ ] `TEST_EVIDENCE/latest.md` updated by CI proof run with real evidence.
+- [ ] Hardened: secret hygiene scan, RBAC capability gating, backups runbook.
+
+## Phased Build Plan (follow in order)
+
+### Phase 1 — Foundation (COMPLETE)
+
+- Governance files, CI, audit workflows, Railway deploy wiring.
+- Backend FastAPI skeleton with health, leads, artifacts, scraper, autonomy, LLM
+  routes.
+- Workers: default (Celery), playwright, sandbox runner.
+- `packages/contracts` TypeScript schemas.
+- `packages/infinity-library` Python validators + policy + logging.
+- Frontend: `/workspace` center editing screen, `/scraper` settings UI.
+- Autonomy scheduler workflow (every 2 hours).
+- `TEST_EVIDENCE/` directory bootstrapped.
+
+### Phase 2 — Source Repo Consolidation
+
+For each source repo (`XPS_INTELLIGENCE_SYSTEM`, `XPS-INTELLIGENCE-FRONTEND`,
+`quantum-x-builder`, `intelligence-system`, `manus-core-system`,
+`vizual-x-admin-control-plane`):
+
+1. Run `source-forensic-audit.yml` → inspect `FORENSIC_AUDIT/sources/<repo>/`.
+2. Extract unique capabilities not yet present in the monorepo.
+3. Import code additively (no deletion of existing features).
+4. Add/update tests for imported code.
+5. Do NOT change frontend aesthetic.
+
+### Phase 3 — Runtime + Sandbox Hardening
+
+- Verify all scrape + exec runs through `SandboxExecutor` with capability gating.
+- Add Celery beat schedule for 2-hour cycle.
+- Implement Alembic migrations for Lead, Artifact, ScrapeJob tables.
+- Add database connection pooling and Redis connection retry.
+
+### Phase 4 — Railway Production Wiring
+
+- Link `railway.json` for each service to Railway project.
+- Wire `DATABASE_URL` and `REDIS_URL` from Railway linked services.
+- Add `deploy-workers` job to `deploy-railway.yml`.
+- Add health check endpoints and Railway health check config.
+- Verify `RAILWAY_TOKEN` secret is accessible in deploy workflows.
+
+### Phase 5 — E2E Proof + TEST_EVIDENCE
+
+- Playwright E2E: boot frontend, trigger scrape, assert leads exist, render
+  artifacts, capture snapshots.
+- CI proof job: run real (allowlisted) scrape → normalize → score → verify UI.
+- Upload snapshots + logs as CI artifacts.
+- Update `TEST_EVIDENCE/latest.md` with run evidence.
 
 ## Absolute Rules
 
@@ -83,13 +195,17 @@ Consolidate and perfect these source repositories into this single mono-repo:
   workers.
 - Do NOT create parallel orchestrators: the backend runtime controller is the
   single authority for execution.
+- Do NOT commit `.env` files or credentials. Use `.env.example` templates only.
+- Do NOT claim a feature is done without test evidence in `TEST_EVIDENCE/`.
 
 ## Required Checks Before Merge
 
 - Backend: `lint` + `typecheck` + `unit` + `integration` + `security scan` pass
-- Frontend: `npx tsc --noEmit && npm run lint && npm run build` pass
+- Frontend: `npm run type-check && npm run lint && npm run build` pass (in
+  `apps/frontend`)
 - E2E: Playwright tests pass and snapshots are uploaded as CI artifacts
 - Audit: `FORENSIC_AUDIT/` regenerated and shows no P0 or P1 failures
+- Proof: `TEST_EVIDENCE/latest.md` updated with evidence from current run
 
 ## Branch Strategy
 
@@ -105,6 +221,36 @@ Consolidate and perfect these source repositories into this single mono-repo:
 ## LLM Routing
 
 - **Primary (IDE/PR automation):** GitHub Copilot
-- **Primary (runtime):** Configurable via `LLM_PROVIDER` env var
-- **Secondary (runtime fallback):** Groq
+- **Primary (runtime):** Configurable via `LLM_PROVIDER` env var (default:
+  `groq`)
+- **Secondary (runtime fallback):** `echo` (no external call)
+- **Groq:** `GROQ_API_KEY` env var — server-side only; never in frontend bundle.
 - Server-side LLM credentials are **never** exposed to the frontend bundle.
+- Route: POST `/api/v1/llm/chat` → backend → Groq (if key set) → echo fallback.
+
+## Environment Variable Contract
+
+See `docs/deployment/RAILWAY_ENV_CONTRACT.md` for the full per-service variable
+contract. Summary:
+
+| Variable | Service | Notes |
+|---|---|---|
+| `DATABASE_URL` | backend, workers | Provided by Railway linked Postgres |
+| `REDIS_URL` | backend, workers | Provided by Railway linked Redis |
+| `SECRET_KEY` | backend | Generate with `openssl rand -hex 32` |
+| `GROQ_API_KEY` | backend | Server-side only — never `NEXT_PUBLIC_` |
+| `AUTONOMY_ENABLED` | backend | Feature flag (default `false`) |
+| `SCRAPER_AUTORUN_ENABLED` | backend | Feature flag (default `false`) |
+| `BACKEND_URL` | GitHub Actions | Used by autonomy-scheduler and health checks |
+| `RAILWAY_TOKEN` | GitHub Actions | Already installed |
+| `NEXT_PUBLIC_BACKEND_URL` | frontend | Public API base URL (safe — no secrets) |
+
+## Security Hardening Checklist
+
+- [ ] `check-no-vite-secrets` CI job passes (no `VITE_*KEY|SECRET|TOKEN` patterns)
+- [ ] `security-scan.yml` (CodeQL) passes on every PR
+- [ ] Capability gating enforced in `SandboxExecutor` and `SandboxRunner`
+- [ ] All API routes validate input with Pydantic schemas
+- [ ] Idempotency keys prevent duplicate lead records
+- [ ] `RBAC`: admin routes protected by `AUTONOMY_TOKEN` bearer auth
+- [ ] Backups runbook documented in `_OPS/RUNBOOK/OPERATOR_RUNBOOK.md`

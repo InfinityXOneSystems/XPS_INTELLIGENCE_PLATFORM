@@ -1,0 +1,11 @@
+{
+  "$schema": "https://railway.app/railway.schema.json",
+  "build": {
+    "builder": "DOCKERFILE",
+    "dockerfilePath": "./apps/workers/default/Dockerfile"
+  },
+  "deploy": {
+    "startCommand": "celery -A apps.workers.default.worker worker --loglevel=info",
+    "restartPolicyType": "ON_FAILURE"
+  }
+}

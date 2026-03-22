@@ -28,15 +28,16 @@ fi
 
 # ── Start backend ──────────────────────────────────────────────────────────
 start_backend() {
-  if [[ -f "apps/backend/src/main.py" ]]; then
+  if [[ -f "apps/backend/main.py" ]]; then
     echo "🔧 Starting backend (FastAPI)..."
-    cd apps/backend
-    uvicorn src.main:app --reload --host 0.0.0.0 --port 8000 &
+    # Run uvicorn from the repo root with PYTHONPATH set so that
+    # `from apps.backend.*` imports resolve correctly.
+    PYTHONPATH="$REPO_ROOT" uvicorn apps.backend.main:app \
+      --reload --host 0.0.0.0 --port 8000 &
     BACKEND_PID=$!
     echo "✅ Backend started on http://localhost:8000 (PID: $BACKEND_PID)"
-    cd "$REPO_ROOT"
   else
-    echo "⚠️  No backend entry point yet (apps/backend/src/main.py) — skipping"
+    echo "⚠️  No backend entry point yet (apps/backend/main.py) — skipping"
   fi
 }
 

@@ -1,0 +1,4 @@
+# This file ensures the public/ directory is tracked by git.
+# Next.js serves files from this directory as static assets at the root path.
+# Railway's Docker build copies this directory into the production image.
+# Without this directory, the multi-stage Dockerfile's COPY command would fail.
