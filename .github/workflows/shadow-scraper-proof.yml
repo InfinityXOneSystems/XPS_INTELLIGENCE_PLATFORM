@@ -1,0 +1,115 @@
+name: Shadow Scraper Proof
+
+on:
+  push:
+    branches:
+      - "**"
+  pull_request:
+    branches:
+      - "**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  shadow-scraper-proof:
+    name: Shadow Scraper — Compliance & Parallelism Proof
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install pytest
+        run: pip install pytest --quiet
+
+      - name: Run Shadow Scraper config tests
+        id: run-tests
+        timeout-minutes: 5
+        run: |
+          python -m pytest packages/agents/shadow-scraper/tests/ -v \
+            --tb=short \
+            --no-header \
+            --junit-xml=TEST_EVIDENCE/shadow-scraper-proof.xml
+        env:
+          # Tests run with all SCRAPER_* env vars absent so defaults are exercised.
+          SCRAPER_RESPECT_ROBOTS_TXT: ""
+          SCRAPER_MAX_CONCURRENCY: ""
+          SCRAPER_DOMAIN_CONCURRENCY: ""
+          SCRAPER_MAX_REQUESTS: ""
+          SCRAPER_MAX_PAGES: ""
+          SCRAPER_MAX_RUNTIME_SECONDS: ""
+          SCRAPER_BACKOFF_BASE_MS: ""
+          SCRAPER_BACKOFF_MAX_MS: ""
+          SCRAPER_REQUEST_TIMEOUT_MS: ""
+          SCRAPER_RETRY_MAX: ""
+
+      - name: Emit concurrency metrics artifact
+        if: always()
+        run: |
+          mkdir -p TEST_EVIDENCE
+
+          python - <<'PYEOF'
+          import json
+          import os
+          import sys
+
+          sys.path.insert(0, "packages/agents/shadow-scraper")
+          from config import load_config
+
+          cfg = load_config()
+          metrics = cfg.as_metrics()
+
+          report = {
+              "schema_version": "1.0",
+              "generated_at": __import__("datetime").datetime.now(__import__("datetime").timezone.utc).isoformat(),
+              "compliance": {
+                  "respect_robots_txt": metrics["respect_robots_txt"],
+                  "operator_directive": "IGNORE robots.txt by default",
+                  "override_env_var": "SCRAPER_RESPECT_ROBOTS_TXT=true",
+              },
+              "parallelism": {
+                  "max_concurrency": metrics["max_concurrency"],
+                  "domain_concurrency": metrics["domain_concurrency"],
+                  "max_requests": metrics["max_requests"],
+                  "max_pages": metrics["max_pages"],
+                  "max_runtime_seconds": metrics["max_runtime_seconds"],
+              },
+              "backpressure": {
+                  "backoff_base_ms": metrics["backoff_base_ms"],
+                  "backoff_max_ms": metrics["backoff_max_ms"],
+                  "request_timeout_ms": metrics["request_timeout_ms"],
+                  "retry_max": metrics["retry_max"],
+              },
+          }
+
+          out_path = "TEST_EVIDENCE/shadow-scraper-concurrency-metrics.json"
+          with open(out_path, "w") as fh:
+              json.dump(report, fh, indent=2)
+              fh.write("\n")
+
+          print("Concurrency metrics:")
+          print(json.dumps(report, indent=2))
+
+          assert metrics["respect_robots_txt"] is False, \
+              "OPERATOR DIRECTIVE VIOLATED: respect_robots_txt must be False by default"
+          print("\n✅ Operator directive confirmed: robots.txt is IGNORED by default")
+          PYEOF
+
+      - name: Upload proof artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: shadow-scraper-proof
+          path: |
+            TEST_EVIDENCE/shadow-scraper-proof.xml
+            TEST_EVIDENCE/shadow-scraper-concurrency-metrics.json
+          retention-days: 30
+          if-no-files-found: warn

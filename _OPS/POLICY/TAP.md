@@ -63,6 +63,40 @@ Every claimed capability must have **all three**:
 | Performance claim | Benchmark test with baseline + CI artifact |
 | Deployment claim | Successful Railway deploy log + health check result |
 
+## Shadow Scraper Compliance Policy
+
+These rules govern all use of the Shadow Scraper within the platform.
+
+### Operator Directive (2026-03-13)
+
+| Parameter | Default | Override |
+|---|---|---|
+| `SCRAPER_RESPECT_ROBOTS_TXT` | `false` — ignore robots.txt | Set `true` to honour robots.txt |
+| `SCRAPER_MAX_CONCURRENCY` | `20` | Global concurrent-request cap |
+| `SCRAPER_DOMAIN_CONCURRENCY` | `5` | Per-domain concurrent-request cap |
+| `SCRAPER_MAX_REQUESTS` | `10000` | Max HTTP requests per job |
+| `SCRAPER_MAX_PAGES` | `5000` | Max pages crawled per job |
+| `SCRAPER_MAX_RUNTIME_SECONDS` | `3600` | Hard job deadline (1 hour) |
+| `SCRAPER_BACKOFF_BASE_MS` | `250` | Adaptive back-off base delay |
+| `SCRAPER_BACKOFF_MAX_MS` | `30000` | Adaptive back-off ceiling |
+| `SCRAPER_REQUEST_TIMEOUT_MS` | `30000` | Per-request timeout |
+| `SCRAPER_RETRY_MAX` | `3` | Max retries per failed request |
+
+### Rules
+
+1. **robots.txt is ignored by default.** This is the operator directive.
+   To honour robots.txt for a specific deployment, set `SCRAPER_RESPECT_ROBOTS_TXT=true`.
+2. **Bounded budgets are mandatory.** Every scrape job MUST run within the caps above.
+   These caps prevent runaway resource use in CI and production.
+3. **Per-domain concurrency is enforced.** `SCRAPER_DOMAIN_CONCURRENCY` limits
+   simultaneous requests to any single domain to prevent overwhelming targets.
+4. **Adaptive back-off is required.** Workers MUST implement exponential back-off
+   between `SCRAPER_BACKOFF_BASE_MS` and `SCRAPER_BACKOFF_MAX_MS` on errors.
+5. **Sandbox boundary applies.** All scraping runs inside the sandbox worker.
+   No scraping from the API process or frontend.
+6. **Proof is required.** Every scrape run must emit a metrics artifact under
+   `TEST_EVIDENCE/` confirming the active configuration.
+
 ## Gate Definitions
 
 ### P0 — Critical (Blocks Merge)
