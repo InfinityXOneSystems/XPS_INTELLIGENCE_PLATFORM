@@ -1,7 +1,7 @@
 # Repository Settings Audit Report
 
 **Repository:** `InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM`  
-**Generated:** 2026-03-29T03:09:44.734362+00:00  
+**Generated:** 2026-04-05T03:09:18.750369+00:00  
 **Default branch:** `main`
 
 ---
@@ -25,12 +25,14 @@
 
 ## Branches
 
-**Total branches:** 17
+**Total branches:** 20
 
 - `XPS_INTELLIGENCE_PLATFORM_PAGE`
 - `copilot/consolidate-all-source-repos`
 - `copilot/update-scraper-architecture`
 - `copilot/update-shadow-scraper-compliance-defaults`
+- `dependabot/github_actions/actions/configure-pages-6`
+- `dependabot/github_actions/actions/deploy-pages-5`
 - `dependabot/github_actions/actions/download-artifact-8`
 - `dependabot/github_actions/actions/upload-artifact-7`
 - `dependabot/npm_and_yarn/apps/frontend/eslint-10.1.0`
@@ -42,6 +44,7 @@
 - `dependabot/npm_and_yarn/apps/frontend/next-15.5.14`
 - `dependabot/npm_and_yarn/apps/frontend/next-16.2.1`
 - `dependabot/npm_and_yarn/apps/frontend/types/node-25.5.0`
+- `dependabot/npm_and_yarn/apps/frontend/typescript-6.0.2`
 - `gh-pages`
 - `main`
 
@@ -134,10 +137,13 @@
 
 ## Open Pull Requests
 
-**Count:** 14
+**Count:** 17
 
 | # | Title | Author | Draft | Head → Base | Created |
 | - | ----- | ------ | ----- | ----------- | ------- |
+| [36](https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/36) | ci(deps): bump actions/deploy-pages from 4 to 5 | dependabot[bot] |  | `dependabot/github_actions/actions/deploy-pages-5` → `main` | 2026-03-30 |
+| [35](https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/35) | ci(deps): bump actions/configure-pages from 5 to 6 | dependabot[bot] |  | `dependabot/github_actions/actions/configure-pages-6` → `main` | 2026-03-30 |
+| [34](https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/34) | chore(deps-frontend): bump typescript from 5.9.3 to 6.0.2 in /apps/frontend | dependabot[bot] |  | `dependabot/npm_and_yarn/apps/frontend/typescript-6.0.2` → `main` | 2026-03-30 |
 | [33](https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/33) | chore(deps-frontend): bump picomatch in /apps/frontend | dependabot[bot] |  | `dependabot/npm_and_yarn/apps/frontend/multi-bf05dc1ecf` → `main` | 2026-03-26 |
 | [32](https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/32) | chore(deps-frontend): bump next from 15.5.10 to 16.2.1 in /apps/frontend | dependabot[bot] |  | `dependabot/npm_and_yarn/apps/frontend/next-16.2.1` → `main` | 2026-03-23 |
 | [31](https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/31) | chore(deps-frontend): bump eslint from 8.57.1 to 10.1.0 in /apps/frontend | dependabot[bot] |  | `dependabot/npm_and_yarn/apps/frontend/eslint-10.1.0` → `main` | 2026-03-23 |
