@@ -21,7 +21,7 @@ jobs:
 
     steps:
       - name: Triage and acknowledge
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const issue = context.payload.issue;
@@ -143,7 +143,7 @@ jobs:
 
       - name: Sync open issues to TODO.md
         id: sync-todo
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const { data: issues } = await github.rest.issues.listForRepo({
