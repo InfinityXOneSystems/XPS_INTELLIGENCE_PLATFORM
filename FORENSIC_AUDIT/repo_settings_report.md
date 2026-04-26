@@ -1,7 +1,7 @@
 # Repository Settings Audit Report
 
 **Repository:** `InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM`  
-**Generated:** 2026-04-19T03:10:24.375308+00:00  
+**Generated:** 2026-04-26T03:11:16.765636+00:00  
 **Default branch:** `main`
 
 ---
@@ -25,24 +25,23 @@
 
 ## Branches
 
-**Total branches:** 19
+**Total branches:** 18
 
 - `XPS_INTELLIGENCE_PLATFORM_PAGE`
 - `copilot/add-chat-ui-and-simplify-dashboard`
 - `copilot/consolidate-all-source-repos`
 - `copilot/update-scraper-architecture`
 - `copilot/update-shadow-scraper-compliance-defaults`
-- `dependabot/github_actions/actions/configure-pages-6`
-- `dependabot/github_actions/actions/deploy-pages-5`
 - `dependabot/github_actions/actions/github-script-9`
+- `dependabot/github_actions/actions/upload-pages-artifact-5`
 - `dependabot/github_actions/dependabot/fetch-metadata-3`
-- `dependabot/npm_and_yarn/apps/frontend/eslint-10.2.0`
-- `dependabot/npm_and_yarn/apps/frontend/eslint-config-next-16.2.3`
+- `dependabot/npm_and_yarn/apps/frontend/eslint-10.2.1`
+- `dependabot/npm_and_yarn/apps/frontend/eslint-config-next-16.2.4`
 - `dependabot/npm_and_yarn/apps/frontend/multi-2a6546692b`
 - `dependabot/npm_and_yarn/apps/frontend/multi-0193e73c84`
-- `dependabot/npm_and_yarn/apps/frontend/next-16.2.3`
+- `dependabot/npm_and_yarn/apps/frontend/next-16.2.4`
 - `dependabot/npm_and_yarn/apps/frontend/types/node-25.6.0`
-- `dependabot/npm_and_yarn/apps/frontend/typescript-6.0.2`
+- `dependabot/npm_and_yarn/apps/frontend/typescript-6.0.3`
 - `dependabot/npm_and_yarn/playwright/test-1.59.1`
 - `gh-pages`
 - `main`
@@ -136,23 +135,22 @@
 
 ## Open Pull Requests
 
-**Count:** 13
+**Count:** 12
 
 | # | Title | Author | Draft | Head → Base | Created |
 | - | ----- | ------ | ----- | ----------- | ------- |
+| [51](https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/51) | ci(deps): bump actions/upload-pages-artifact from 4 to 5 | dependabot[bot] |  | `dependabot/github_actions/actions/upload-pages-artifact-5` → `main` | 2026-04-20 |
+| [50](https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/50) | chore(deps-frontend): bump eslint from 8.57.1 to 10.2.1 in /apps/frontend | dependabot[bot] |  | `dependabot/npm_and_yarn/apps/frontend/eslint-10.2.1` → `main` | 2026-04-20 |
+| [49](https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/49) | chore(deps-frontend): bump typescript from 5.9.3 to 6.0.3 in /apps/frontend | dependabot[bot] |  | `dependabot/npm_and_yarn/apps/frontend/typescript-6.0.3` → `main` | 2026-04-20 |
+| [48](https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/48) | chore(deps-frontend): bump eslint-config-next from 15.5.10 to 16.2.4 in /apps/frontend | dependabot[bot] |  | `dependabot/npm_and_yarn/apps/frontend/eslint-config-next-16.2.4` → `main` | 2026-04-20 |
+| [47](https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/47) | chore(deps-frontend): bump next from 15.5.10 to 16.2.4 in /apps/frontend | dependabot[bot] |  | `dependabot/npm_and_yarn/apps/frontend/next-16.2.4` → `main` | 2026-04-20 |
 | [46](https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/46) | ci(deps): bump dependabot/fetch-metadata from 2 to 3 | dependabot[bot] |  | `dependabot/github_actions/dependabot/fetch-metadata-3` → `main` | 2026-04-13 |
 | [45](https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/45) | ci(deps): bump actions/github-script from 8 to 9 | dependabot[bot] |  | `dependabot/github_actions/actions/github-script-9` → `main` | 2026-04-13 |
-| [44](https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/44) | chore(deps-frontend): bump next from 15.5.10 to 16.2.3 in /apps/frontend | dependabot[bot] |  | `dependabot/npm_and_yarn/apps/frontend/next-16.2.3` → `main` | 2026-04-13 |
 | [43](https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/43) | chore(deps-frontend): bump react and @types/react in /apps/frontend | dependabot[bot] |  | `dependabot/npm_and_yarn/apps/frontend/multi-0193e73c84` → `main` | 2026-04-13 |
 | [42](https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/42) | chore(deps-frontend): bump @types/node from 20.19.37 to 25.6.0 in /apps/frontend | dependabot[bot] |  | `dependabot/npm_and_yarn/apps/frontend/types/node-25.6.0` → `main` | 2026-04-13 |
-| [41](https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/41) | chore(deps-frontend): bump eslint-config-next from 15.5.10 to 16.2.3 in /apps/frontend | dependabot[bot] |  | `dependabot/npm_and_yarn/apps/frontend/eslint-config-next-16.2.3` → `main` | 2026-04-13 |
-| [40](https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/40) | chore(deps-frontend): bump eslint from 8.57.1 to 10.2.0 in /apps/frontend | dependabot[bot] |  | `dependabot/npm_and_yarn/apps/frontend/eslint-10.2.0` → `main` | 2026-04-13 |
 | [39](https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/39) | chore(deps-frontend): bump react-dom and @types/react-dom in /apps/frontend | dependabot[bot] |  | `dependabot/npm_and_yarn/apps/frontend/multi-2a6546692b` → `main` | 2026-04-13 |
 | [38](https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/38) | [WIP] Add chat UI bar on right side and simplify dashboard | Copilot | ✏️ draft | `copilot/add-chat-ui-and-simplify-dashboard` → `main` | 2026-04-09 |
 | [37](https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/37) | chore(deps): bump @playwright/test from 1.58.2 to 1.59.1 | dependabot[bot] |  | `dependabot/npm_and_yarn/playwright/test-1.59.1` → `main` | 2026-04-06 |
-| [36](https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/36) | ci(deps): bump actions/deploy-pages from 4 to 5 | dependabot[bot] |  | `dependabot/github_actions/actions/deploy-pages-5` → `main` | 2026-03-30 |
-| [35](https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/35) | ci(deps): bump actions/configure-pages from 5 to 6 | dependabot[bot] |  | `dependabot/github_actions/actions/configure-pages-6` → `main` | 2026-03-30 |
-| [34](https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/34) | chore(deps-frontend): bump typescript from 5.9.3 to 6.0.2 in /apps/frontend | dependabot[bot] |  | `dependabot/npm_and_yarn/apps/frontend/typescript-6.0.2` → `main` | 2026-03-30 |
 
 ---
 
