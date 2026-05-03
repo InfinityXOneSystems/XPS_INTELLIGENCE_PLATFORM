@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "generated_at": "2026-04-26T03:11:16.765636+00:00",
+  "generated_at": "2026-05-03T03:12:28.882422+00:00",
   "repository": "InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM",
   "repo_info": {
     "default_branch": "main",
@@ -32,7 +32,6 @@
     "dependabot/npm_and_yarn/apps/frontend/next-16.2.4",
     "dependabot/npm_and_yarn/apps/frontend/types/node-25.6.0",
     "dependabot/npm_and_yarn/apps/frontend/typescript-6.0.3",
-    "dependabot/npm_and_yarn/playwright/test-1.59.1",
     "gh-pages",
     "main"
   ],
@@ -199,7 +198,7 @@
       "state": "open",
       "draft": false,
       "created_at": "2026-04-13T06:21:42Z",
-      "updated_at": "2026-04-13T06:22:25Z",
+      "updated_at": "2026-04-27T08:59:33Z",
       "head_ref": "dependabot/github_actions/dependabot/fetch-metadata-3",
       "base_ref": "main",
       "author": "dependabot[bot]",
@@ -211,7 +210,7 @@
       "state": "open",
       "draft": false,
       "created_at": "2026-04-13T06:21:40Z",
-      "updated_at": "2026-04-13T06:22:39Z",
+      "updated_at": "2026-04-27T08:59:35Z",
       "head_ref": "dependabot/github_actions/actions/github-script-9",
       "base_ref": "main",
       "author": "dependabot[bot]",
@@ -223,7 +222,7 @@
       "state": "open",
       "draft": false,
       "created_at": "2026-04-13T06:21:25Z",
-      "updated_at": "2026-04-13T06:21:40Z",
+      "updated_at": "2026-04-27T08:59:37Z",
       "head_ref": "dependabot/npm_and_yarn/apps/frontend/multi-0193e73c84",
       "base_ref": "main",
       "author": "dependabot[bot]",
@@ -235,7 +234,7 @@
       "state": "open",
       "draft": false,
       "created_at": "2026-04-13T06:21:15Z",
-      "updated_at": "2026-04-13T06:21:29Z",
+      "updated_at": "2026-04-27T08:59:38Z",
       "head_ref": "dependabot/npm_and_yarn/apps/frontend/types/node-25.6.0",
       "base_ref": "main",
       "author": "dependabot[bot]",
@@ -247,35 +246,11 @@
       "state": "open",
       "draft": false,
       "created_at": "2026-04-13T06:20:46Z",
-      "updated_at": "2026-04-13T06:21:05Z",
+      "updated_at": "2026-04-27T08:59:40Z",
       "head_ref": "dependabot/npm_and_yarn/apps/frontend/multi-2a6546692b",
       "base_ref": "main",
       "author": "dependabot[bot]",
       "url": "https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/39"
-    },
-    {
-      "number": 38,
-      "title": "[WIP] Add chat UI bar on right side and simplify dashboard",
-      "state": "open",
-      "draft": true,
-      "created_at": "2026-04-09T12:18:54Z",
-      "updated_at": "2026-04-24T08:48:54Z",
-      "head_ref": "copilot/add-chat-ui-and-simplify-dashboard",
-      "base_ref": "main",
-      "author": "Copilot",
-      "url": "https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/38"
-    },
-    {
-      "number": 37,
-      "title": "chore(deps): bump @playwright/test from 1.58.2 to 1.59.1",
-      "state": "open",
-      "draft": false,
-      "created_at": "2026-04-06T06:20:29Z",
-      "updated_at": "2026-04-20T08:54:23Z",
-      "head_ref": "dependabot/npm_and_yarn/playwright/test-1.59.1",
-      "base_ref": "main",
-      "author": "dependabot[bot]",
-      "url": "https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/37"
     }
   ]
 }

@@ -1,7 +1,7 @@
 # Repository Settings Audit Report
 
 **Repository:** `InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM`  
-**Generated:** 2026-04-26T03:11:16.765636+00:00  
+**Generated:** 2026-05-03T03:12:28.882422+00:00  
 **Default branch:** `main`
 
 ---
@@ -25,7 +25,7 @@
 
 ## Branches
 
-**Total branches:** 18
+**Total branches:** 17
 
 - `XPS_INTELLIGENCE_PLATFORM_PAGE`
 - `copilot/add-chat-ui-and-simplify-dashboard`
@@ -42,7 +42,6 @@
 - `dependabot/npm_and_yarn/apps/frontend/next-16.2.4`
 - `dependabot/npm_and_yarn/apps/frontend/types/node-25.6.0`
 - `dependabot/npm_and_yarn/apps/frontend/typescript-6.0.3`
-- `dependabot/npm_and_yarn/playwright/test-1.59.1`
 - `gh-pages`
 - `main`
 
@@ -135,7 +134,7 @@
 
 ## Open Pull Requests
 
-**Count:** 12
+**Count:** 10
 
 | # | Title | Author | Draft | Head → Base | Created |
 | - | ----- | ------ | ----- | ----------- | ------- |
@@ -149,8 +148,6 @@
 | [43](https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/43) | chore(deps-frontend): bump react and @types/react in /apps/frontend | dependabot[bot] |  | `dependabot/npm_and_yarn/apps/frontend/multi-0193e73c84` → `main` | 2026-04-13 |
 | [42](https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/42) | chore(deps-frontend): bump @types/node from 20.19.37 to 25.6.0 in /apps/frontend | dependabot[bot] |  | `dependabot/npm_and_yarn/apps/frontend/types/node-25.6.0` → `main` | 2026-04-13 |
 | [39](https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/39) | chore(deps-frontend): bump react-dom and @types/react-dom in /apps/frontend | dependabot[bot] |  | `dependabot/npm_and_yarn/apps/frontend/multi-2a6546692b` → `main` | 2026-04-13 |
-| [38](https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/38) | [WIP] Add chat UI bar on right side and simplify dashboard | Copilot | ✏️ draft | `copilot/add-chat-ui-and-simplify-dashboard` → `main` | 2026-04-09 |
-| [37](https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/37) | chore(deps): bump @playwright/test from 1.58.2 to 1.59.1 | dependabot[bot] |  | `dependabot/npm_and_yarn/playwright/test-1.59.1` → `main` | 2026-04-06 |
 
 ---
 
