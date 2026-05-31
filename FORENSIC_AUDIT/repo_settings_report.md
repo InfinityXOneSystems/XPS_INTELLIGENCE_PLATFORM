@@ -1,7 +1,7 @@
 # Repository Settings Audit Report
 
 **Repository:** `InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM`  
-**Generated:** 2026-05-24T03:14:37.054320+00:00  
+**Generated:** 2026-05-31T03:15:39.478891+00:00  
 **Default branch:** `main`
 
 ---
@@ -38,7 +38,7 @@
 - `dependabot/npm_and_yarn/apps/frontend/multi-76a9a2998f`
 - `dependabot/npm_and_yarn/apps/frontend/multi-bb2efd036b`
 - `dependabot/npm_and_yarn/apps/frontend/next-16.2.6`
-- `dependabot/npm_and_yarn/apps/frontend/types/node-25.8.0`
+- `dependabot/npm_and_yarn/apps/frontend/types/node-25.9.1`
 - `dependabot/npm_and_yarn/playwright/test-1.60.0`
 - `gh-pages`
 - `main`
@@ -136,7 +136,7 @@
 
 | # | Title | Author | Draft | Head → Base | Created |
 | - | ----- | ------ | ----- | ----------- | ------- |
-| [61](https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/61) | chore(deps-frontend): bump @types/node from 20.19.37 to 25.8.0 in /apps/frontend | dependabot[bot] |  | `dependabot/npm_and_yarn/apps/frontend/types/node-25.8.0` → `main` | 2026-05-18 |
+| [62](https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/62) | chore(deps-frontend): bump @types/node from 20.19.37 to 25.9.1 in /apps/frontend | dependabot[bot] |  | `dependabot/npm_and_yarn/apps/frontend/types/node-25.9.1` → `main` | 2026-05-25 |
 | [60](https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/60) | chore(deps-frontend): bump eslint from 8.57.1 to 10.4.0 in /apps/frontend | dependabot[bot] |  | `dependabot/npm_and_yarn/apps/frontend/eslint-10.4.0` → `main` | 2026-05-18 |
 | [59](https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/59) | chore(deps): bump @playwright/test from 1.58.2 to 1.60.0 | dependabot[bot] |  | `dependabot/npm_and_yarn/playwright/test-1.60.0` → `main` | 2026-05-18 |
 | [58](https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/58) | ci(deps): bump actions/dependency-review-action from 4 to 5 | dependabot[bot] |  | `dependabot/github_actions/actions/dependency-review-action-5` → `main` | 2026-05-11 |
