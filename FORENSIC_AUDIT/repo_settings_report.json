@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "generated_at": "2026-06-07T03:15:55.585247+00:00",
+  "generated_at": "2026-06-14T03:16:38.231413+00:00",
   "repository": "InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM",
   "repo_info": {
     "default_branch": "main",
@@ -27,8 +27,7 @@
     "dependabot/npm_and_yarn/apps/frontend/multi-3d3f0671f1",
     "dependabot/npm_and_yarn/apps/frontend/multi-c336f0d9c2",
     "dependabot/npm_and_yarn/apps/frontend/next-16.2.7",
-    "dependabot/npm_and_yarn/apps/frontend/types/node-25.9.1",
-    "dependabot/npm_and_yarn/playwright/test-1.60.0",
+    "dependabot/npm_and_yarn/apps/frontend/types/node-25.9.2",
     "gh-pages",
     "main"
   ],
@@ -130,6 +129,18 @@
   "actions_variables_names_only": "unavailable",
   "open_pull_requests": [
     {
+      "number": 68,
+      "title": "chore(deps-frontend): bump @types/node from 20.19.37 to 25.9.2 in /apps/frontend",
+      "state": "open",
+      "draft": false,
+      "created_at": "2026-06-08T06:09:28Z",
+      "updated_at": "2026-06-08T06:09:38Z",
+      "head_ref": "dependabot/npm_and_yarn/apps/frontend/types/node-25.9.2",
+      "base_ref": "main",
+      "author": "dependabot[bot]",
+      "url": "https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/68"
+    },
+    {
       "number": 67,
       "title": "chore(deps-frontend): bump eslint from 8.57.1 to 10.4.1 in /apps/frontend",
       "state": "open",
@@ -188,30 +199,6 @@
       "base_ref": "main",
       "author": "dependabot[bot]",
       "url": "https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/63"
-    },
-    {
-      "number": 62,
-      "title": "chore(deps-frontend): bump @types/node from 20.19.37 to 25.9.1 in /apps/frontend",
-      "state": "open",
-      "draft": false,
-      "created_at": "2026-05-25T08:24:10Z",
-      "updated_at": "2026-05-25T08:24:23Z",
-      "head_ref": "dependabot/npm_and_yarn/apps/frontend/types/node-25.9.1",
-      "base_ref": "main",
-      "author": "dependabot[bot]",
-      "url": "https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/62"
-    },
-    {
-      "number": 59,
-      "title": "chore(deps): bump @playwright/test from 1.58.2 to 1.60.0",
-      "state": "open",
-      "draft": false,
-      "created_at": "2026-05-18T08:54:34Z",
-      "updated_at": "2026-06-01T09:58:53Z",
-      "head_ref": "dependabot/npm_and_yarn/playwright/test-1.60.0",
-      "base_ref": "main",
-      "author": "dependabot[bot]",
-      "url": "https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/59"
     }
   ]
 }
