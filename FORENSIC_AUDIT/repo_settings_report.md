@@ -1,7 +1,7 @@
 # Repository Settings Audit Report
 
 **Repository:** `InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM`  
-**Generated:** 2026-06-21T03:16:33.026502+00:00  
+**Generated:** 2026-06-28T03:15:02.754895+00:00  
 **Default branch:** `main`
 
 ---
@@ -32,12 +32,12 @@
 - `copilot/consolidate-all-source-repos`
 - `copilot/update-scraper-architecture`
 - `copilot/update-shadow-scraper-compliance-defaults`
+- `dependabot/github_actions/actions/checkout-7`
 - `dependabot/npm_and_yarn/apps/frontend/eslint-10.5.0`
 - `dependabot/npm_and_yarn/apps/frontend/eslint-config-next-16.2.9`
-- `dependabot/npm_and_yarn/apps/frontend/multi-3d3f0671f1`
-- `dependabot/npm_and_yarn/apps/frontend/multi-c336f0d9c2`
 - `dependabot/npm_and_yarn/apps/frontend/next-16.2.9`
-- `dependabot/npm_and_yarn/apps/frontend/types/node-25.9.3`
+- `dependabot/npm_and_yarn/apps/frontend/types/node-26.0.0`
+- `dependabot/npm_and_yarn/playwright/test-1.61.0`
 - `gh-pages`
 - `main`
 
@@ -134,12 +134,12 @@
 
 | # | Title | Author | Draft | Head → Base | Created |
 | - | ----- | ------ | ----- | ----------- | ------- |
+| [75](https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/75) | ci(deps): bump actions/checkout from 6 to 7 | dependabot[bot] |  | `dependabot/github_actions/actions/checkout-7` → `main` | 2026-06-22 |
+| [74](https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/74) | chore(deps-frontend): bump @types/node from 20.19.37 to 26.0.0 in /apps/frontend | dependabot[bot] |  | `dependabot/npm_and_yarn/apps/frontend/types/node-26.0.0` → `main` | 2026-06-22 |
+| [73](https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/73) | chore(deps): bump @playwright/test from 1.58.2 to 1.61.0 | dependabot[bot] |  | `dependabot/npm_and_yarn/playwright/test-1.61.0` → `main` | 2026-06-22 |
 | [72](https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/72) | chore(deps-frontend): bump next from 15.5.10 to 16.2.9 in /apps/frontend | dependabot[bot] |  | `dependabot/npm_and_yarn/apps/frontend/next-16.2.9` → `main` | 2026-06-15 |
-| [71](https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/71) | chore(deps-frontend): bump @types/node from 20.19.37 to 25.9.3 in /apps/frontend | dependabot[bot] |  | `dependabot/npm_and_yarn/apps/frontend/types/node-25.9.3` → `main` | 2026-06-15 |
 | [70](https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/70) | chore(deps-frontend): bump eslint-config-next from 15.5.10 to 16.2.9 in /apps/frontend | dependabot[bot] |  | `dependabot/npm_and_yarn/apps/frontend/eslint-config-next-16.2.9` → `main` | 2026-06-15 |
 | [69](https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/69) | chore(deps-frontend): bump eslint from 8.57.1 to 10.5.0 in /apps/frontend | dependabot[bot] |  | `dependabot/npm_and_yarn/apps/frontend/eslint-10.5.0` → `main` | 2026-06-15 |
-| [66](https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/66) | chore(deps-frontend): bump react and @types/react in /apps/frontend | dependabot[bot] |  | `dependabot/npm_and_yarn/apps/frontend/multi-c336f0d9c2` → `main` | 2026-06-01 |
-| [65](https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/65) | chore(deps-frontend): bump react-dom and @types/react-dom in /apps/frontend | dependabot[bot] |  | `dependabot/npm_and_yarn/apps/frontend/multi-3d3f0671f1` → `main` | 2026-06-01 |
 
 ---
 
