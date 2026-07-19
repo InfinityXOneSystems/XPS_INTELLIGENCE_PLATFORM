@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "generated_at": "2026-07-12T03:08:09.207994+00:00",
+  "generated_at": "2026-07-19T03:07:48.192998+00:00",
   "repository": "InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM",
   "repo_info": {
     "default_branch": "main",
@@ -22,12 +22,12 @@
     "copilot/consolidate-all-source-repos",
     "copilot/update-scraper-architecture",
     "copilot/update-shadow-scraper-compliance-defaults",
-    "dependabot/github_actions/actions/checkout-7",
-    "dependabot/npm_and_yarn/apps/frontend/eslint-10.6.0",
+    "dependabot/npm_and_yarn/apps/frontend/eslint-10.7.0",
     "dependabot/npm_and_yarn/apps/frontend/eslint-config-next-16.2.10",
     "dependabot/npm_and_yarn/apps/frontend/js-yaml-4.3.0",
     "dependabot/npm_and_yarn/apps/frontend/next-16.2.10",
-    "dependabot/npm_and_yarn/apps/frontend/types/node-26.1.0",
+    "dependabot/npm_and_yarn/apps/frontend/types/node-26.1.1",
+    "dependabot/npm_and_yarn/apps/frontend/typescript-7.0.2",
     "dependabot/npm_and_yarn/playwright/test-1.61.1",
     "gh-pages",
     "main"
@@ -130,6 +130,42 @@
   "actions_variables_names_only": "unavailable",
   "open_pull_requests": [
     {
+      "number": 85,
+      "title": "chore(deps-frontend): bump @types/node from 20.19.37 to 26.1.1 in /apps/frontend",
+      "state": "open",
+      "draft": false,
+      "created_at": "2026-07-13T06:10:57Z",
+      "updated_at": "2026-07-13T06:11:19Z",
+      "head_ref": "dependabot/npm_and_yarn/apps/frontend/types/node-26.1.1",
+      "base_ref": "main",
+      "author": "dependabot[bot]",
+      "url": "https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/85"
+    },
+    {
+      "number": 84,
+      "title": "chore(deps-frontend): bump eslint from 8.57.1 to 10.7.0 in /apps/frontend",
+      "state": "open",
+      "draft": false,
+      "created_at": "2026-07-13T06:10:47Z",
+      "updated_at": "2026-07-13T06:11:06Z",
+      "head_ref": "dependabot/npm_and_yarn/apps/frontend/eslint-10.7.0",
+      "base_ref": "main",
+      "author": "dependabot[bot]",
+      "url": "https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/84"
+    },
+    {
+      "number": 83,
+      "title": "chore(deps-frontend): bump typescript from 5.9.3 to 7.0.2 in /apps/frontend",
+      "state": "open",
+      "draft": false,
+      "created_at": "2026-07-13T06:10:20Z",
+      "updated_at": "2026-07-13T06:10:31Z",
+      "head_ref": "dependabot/npm_and_yarn/apps/frontend/typescript-7.0.2",
+      "base_ref": "main",
+      "author": "dependabot[bot]",
+      "url": "https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/83"
+    },
+    {
       "number": 82,
       "title": "chore(deps-frontend): bump next from 15.5.10 to 16.2.10 in /apps/frontend",
       "state": "open",
@@ -140,18 +176,6 @@
       "base_ref": "main",
       "author": "dependabot[bot]",
       "url": "https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/82"
-    },
-    {
-      "number": 81,
-      "title": "chore(deps-frontend): bump @types/node from 20.19.37 to 26.1.0 in /apps/frontend",
-      "state": "open",
-      "draft": false,
-      "created_at": "2026-07-06T06:09:45Z",
-      "updated_at": "2026-07-06T06:09:58Z",
-      "head_ref": "dependabot/npm_and_yarn/apps/frontend/types/node-26.1.0",
-      "base_ref": "main",
-      "author": "dependabot[bot]",
-      "url": "https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/81"
     },
     {
       "number": 80,
@@ -166,24 +190,12 @@
       "url": "https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/80"
     },
     {
-      "number": 78,
-      "title": "chore(deps-frontend): bump eslint from 8.57.1 to 10.6.0 in /apps/frontend",
-      "state": "open",
-      "draft": false,
-      "created_at": "2026-06-29T06:08:35Z",
-      "updated_at": "2026-06-29T06:08:49Z",
-      "head_ref": "dependabot/npm_and_yarn/apps/frontend/eslint-10.6.0",
-      "base_ref": "main",
-      "author": "dependabot[bot]",
-      "url": "https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/78"
-    },
-    {
       "number": 77,
       "title": "chore(deps): bump @playwright/test from 1.58.2 to 1.61.1",
       "state": "open",
       "draft": false,
       "created_at": "2026-06-29T06:08:30Z",
-      "updated_at": "2026-06-29T06:08:44Z",
+      "updated_at": "2026-07-13T09:12:45Z",
       "head_ref": "dependabot/npm_and_yarn/playwright/test-1.61.1",
       "base_ref": "main",
       "author": "dependabot[bot]",
@@ -195,23 +207,11 @@
       "state": "open",
       "draft": false,
       "created_at": "2026-06-29T05:47:45Z",
-      "updated_at": "2026-06-29T05:47:56Z",
+      "updated_at": "2026-07-13T09:12:47Z",
       "head_ref": "dependabot/npm_and_yarn/apps/frontend/js-yaml-4.3.0",
       "base_ref": "main",
       "author": "dependabot[bot]",
       "url": "https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/76"
-    },
-    {
-      "number": 75,
-      "title": "ci(deps): bump actions/checkout from 6 to 7",
-      "state": "open",
-      "draft": false,
-      "created_at": "2026-06-22T06:10:23Z",
-      "updated_at": "2026-07-06T09:29:40Z",
-      "head_ref": "dependabot/github_actions/actions/checkout-7",
-      "base_ref": "main",
-      "author": "dependabot[bot]",
-      "url": "https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/75"
     }
   ]
 }
