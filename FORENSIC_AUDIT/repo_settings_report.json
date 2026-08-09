@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "generated_at": "2026-08-02T03:07:44.110088+00:00",
+  "generated_at": "2026-08-09T03:43:41.069232+00:00",
   "repository": "InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM",
   "repo_info": {
     "default_branch": "main",
@@ -25,17 +25,17 @@
     "dependabot/github_actions/actions/labeler-7",
     "dependabot/github_actions/actions/setup-node-7",
     "dependabot/github_actions/actions/setup-python-7",
+    "dependabot/github_actions/actions/stale-11",
     "dependabot/npm_and_yarn/apps/frontend/brace-expansion-1.1.18",
     "dependabot/npm_and_yarn/apps/frontend/eslint-10.8.0",
     "dependabot/npm_and_yarn/apps/frontend/eslint-config-next-16.2.12",
     "dependabot/npm_and_yarn/apps/frontend/flatted-3.4.4",
+    "dependabot/npm_and_yarn/apps/frontend/js-yaml-4.3.1",
     "dependabot/npm_and_yarn/apps/frontend/multi-287cc95123",
     "dependabot/npm_and_yarn/apps/frontend/multi-3146d5559c",
     "dependabot/npm_and_yarn/apps/frontend/next-15.5.21",
     "dependabot/npm_and_yarn/apps/frontend/next-16.2.12",
-    "dependabot/npm_and_yarn/apps/frontend/types/node-26.1.1",
-    "dependabot/npm_and_yarn/apps/frontend/typescript-7.0.2",
-    "dependabot/npm_and_yarn/playwright/test-1.62.0",
+    "dependabot/npm_and_yarn/playwright/test-1.62.1",
     "gh-pages",
     "main"
   ],
@@ -137,6 +137,42 @@
   "actions_variables_names_only": "unavailable",
   "open_pull_requests": [
     {
+      "number": 102,
+      "title": "chore(deps-frontend): bump js-yaml from 4.1.1 to 4.3.1 in /apps/frontend",
+      "state": "open",
+      "draft": false,
+      "created_at": "2026-08-06T23:12:31Z",
+      "updated_at": "2026-08-06T23:26:34Z",
+      "head_ref": "dependabot/npm_and_yarn/apps/frontend/js-yaml-4.3.1",
+      "base_ref": "main",
+      "author": "dependabot[bot]",
+      "url": "https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/102"
+    },
+    {
+      "number": 101,
+      "title": "ci(deps): bump actions/stale from 10 to 11",
+      "state": "open",
+      "draft": false,
+      "created_at": "2026-08-03T06:11:30Z",
+      "updated_at": "2026-08-03T06:11:45Z",
+      "head_ref": "dependabot/github_actions/actions/stale-11",
+      "base_ref": "main",
+      "author": "dependabot[bot]",
+      "url": "https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/101"
+    },
+    {
+      "number": 100,
+      "title": "chore(deps): bump @playwright/test from 1.58.2 to 1.62.1",
+      "state": "open",
+      "draft": false,
+      "created_at": "2026-08-03T06:08:41Z",
+      "updated_at": "2026-08-03T06:08:53Z",
+      "head_ref": "dependabot/npm_and_yarn/playwright/test-1.62.1",
+      "base_ref": "main",
+      "author": "dependabot[bot]",
+      "url": "https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/100"
+    },
+    {
       "number": 99,
       "title": "chore(deps-frontend): bump brace-expansion from 1.1.12 to 1.1.18 in /apps/frontend",
       "state": "open",
@@ -233,18 +269,6 @@
       "url": "https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/91"
     },
     {
-      "number": 90,
-      "title": "chore(deps): bump @playwright/test from 1.58.2 to 1.62.0",
-      "state": "open",
-      "draft": false,
-      "created_at": "2026-07-27T06:08:58Z",
-      "updated_at": "2026-07-27T06:09:11Z",
-      "head_ref": "dependabot/npm_and_yarn/playwright/test-1.62.0",
-      "base_ref": "main",
-      "author": "dependabot[bot]",
-      "url": "https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/90"
-    },
-    {
       "number": 88,
       "title": "chore(deps-frontend): bump next from 15.5.10 to 15.5.21 in /apps/frontend",
       "state": "open",
@@ -262,7 +286,7 @@
       "state": "open",
       "draft": false,
       "created_at": "2026-07-20T06:10:39Z",
-      "updated_at": "2026-07-20T06:10:57Z",
+      "updated_at": "2026-08-03T11:29:43Z",
       "head_ref": "dependabot/github_actions/actions/setup-node-7",
       "base_ref": "main",
       "author": "dependabot[bot]",
@@ -274,35 +298,11 @@
       "state": "open",
       "draft": false,
       "created_at": "2026-07-20T06:10:35Z",
-      "updated_at": "2026-07-20T06:10:48Z",
+      "updated_at": "2026-08-03T11:29:45Z",
       "head_ref": "dependabot/github_actions/actions/setup-python-7",
       "base_ref": "main",
       "author": "dependabot[bot]",
       "url": "https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/86"
-    },
-    {
-      "number": 85,
-      "title": "chore(deps-frontend): bump @types/node from 20.19.37 to 26.1.1 in /apps/frontend",
-      "state": "open",
-      "draft": false,
-      "created_at": "2026-07-13T06:10:57Z",
-      "updated_at": "2026-07-27T09:14:04Z",
-      "head_ref": "dependabot/npm_and_yarn/apps/frontend/types/node-26.1.1",
-      "base_ref": "main",
-      "author": "dependabot[bot]",
-      "url": "https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/85"
-    },
-    {
-      "number": 83,
-      "title": "chore(deps-frontend): bump typescript from 5.9.3 to 7.0.2 in /apps/frontend",
-      "state": "open",
-      "draft": false,
-      "created_at": "2026-07-13T06:10:20Z",
-      "updated_at": "2026-07-27T09:14:06Z",
-      "head_ref": "dependabot/npm_and_yarn/apps/frontend/typescript-7.0.2",
-      "base_ref": "main",
-      "author": "dependabot[bot]",
-      "url": "https://github.com/InfinityXOneSystems/XPS_INTELLIGENCE_PLATFORM/pull/83"
     }
   ]
 }
